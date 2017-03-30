@@ -1,0 +1,17 @@
+{
+  "name": "catcharide",
+  "version": "3.10.3",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "supervisor index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.2",
+    "multer": "^1.3.0",
+    "supervisor": "^0.12.0"
+  }
+}
