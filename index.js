@@ -97,8 +97,17 @@ app.get("/test", (req, res) => {
 
 app.post("/newUser",(req,res) => {
     console.log("newUser triggered");
-    console.log(req.body);
-    res.send("Response :^)");
+    console.log(req.body.loginName);
+    modelUsers.create(req.body);
+    let allusers = [];
+    modelUsers.find({}, function(err, docs) {
+        if (!err){
+            console.log("found:");
+            console.log(docs);
+            allusers = docs;
+        } else {throw err;}
+    });
+    res.send("Response :^) " + JSON.stringify(req.body) + allusers.toJSON);
 });
 
 

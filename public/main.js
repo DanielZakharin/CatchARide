@@ -56,16 +56,19 @@ $("#plan-ride-tab").click(()=>{
 
 $("#login-submit").click((event)=>{
     console.log("login clicked");
-    const formData = new FormData;
-    formData.append("test","test");
+    /*const formData = new FormData();
+    formData.append("test","test");*/
+    const test = {"test":"test"};
     const url = "http://localhost:3000";
     const myRequest = new Request(url + "/newUser", {
         method: "POST",
-        headers: new Headers({}),
-        body: formData
+        headers: new Headers({
+            "content-type":"application/json"
+        }),
+        body: test
 
     });
-    console.log("sending to url " + url);
+    //console.log(formData);
     fetch(myRequest).then(function (response) {
         console.log(response);
     });

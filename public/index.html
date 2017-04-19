@@ -106,11 +106,16 @@
             </div>
         </div>
         <div class="tab-pane active" id="3">
-            <div class="container" id="loginContainer">
+            <!--<div class="container" id="loginContainer">
                 <input type="text" placeholder="Username" id="login-username">
                 <input type="email" placeholder="Email" id="login-email">
                 <button class="btn" id="login-submit">Create User</button>
-            </div>
+            </div>-->
+            <form method="post" action="/newUser">
+                <input name="userName" type="text" placeholder="Username">
+                <input name="email"placeholder="email">
+                <button type="submit" class="btn">Log In</button>
+            </form>
         </div>
     </div>
 </div>
