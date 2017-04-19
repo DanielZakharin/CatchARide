@@ -3,35 +3,13 @@
  */
 "use strict";
 let map;
-const dataArr = [
-    {
-        "startPoint": "Helsinki",
-        "destination": "Turku",
-        "carType": "Sedan",
-        "carPassengers": 3,
-        "carBaggage": 1,
-    }, {
-        "startPoint": "Turku",
-        "destination": "Tampere",
-        "carType": "Farmari",
-        "carPassengers": 4,
-        "carBaggage": 0,
-    }, {
-        "startPoint": "Joensuu",
-        "destination": "Oulu",
-        "carType": "Compact",
-        "carPassengers": 1,
-        "carBaggage": 0,
-    }
-];
-
 const makeRidesList = () => {
     console.log("func called");
-    for (const trip of dataArr) {
+    /*for (const trip of dataArr) {
         console.log("looping");
         console.log(trip);
         document.getElementById("ridesContainer").innerHTML += makeRow(trip.startPoint, trip.destination, trip.carType, trip.carPassengers, trip.carBaggage);
-    }
+    }*/
 };
 
 const makeRow = (start, end, cartype, carpass, carbag) => {
@@ -74,4 +52,22 @@ $("#plan-ride-tab").click(()=>{
     setTimeout(()=>{
         google.maps.event.trigger(map, "resize");
     },1);
+});
+
+$("#login-submit").click((event)=>{
+    console.log("login clicked");
+    const formData = new FormData;
+    formData.append("test","test");
+    const url = "http://localhost:3000";
+    const myRequest = new Request(url + "/newUser", {
+        method: "POST",
+        headers: new Headers({}),
+        body: formData
+
+    });
+    console.log("sending to url " + url);
+    fetch(myRequest).then(function (response) {
+        console.log(response);
+    });
+
 });

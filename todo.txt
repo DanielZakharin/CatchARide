@@ -1,0 +1,3 @@
+- Make a schema
+- Put stuff in database
+- Display that data
