@@ -1,3 +1,4 @@
-- Make a schema
+- Make a schema (X)
+- Make a user (X)
 - Put stuff in database
 - Display that data

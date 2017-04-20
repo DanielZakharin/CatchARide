@@ -64,48 +64,16 @@
                         <div id="googleMapContainer" style="height:100%"></div>
                     </div>
                     <div class="col-xs-6">
-                        <div class="row input-group">
-                            <span class="input-group-addon" id="basic-addon1">From:</span>
-                            <input type="text" class="form-control" placeholder=" "
-                                   aria-describedby="basic-addon1">
-                        </div>
-                        <div class="row input-group">
-                            <span class="input-group-addon" id="basic-addon2">To:</span>
-                            <input type="text" class="form-control" placeholder=" "
-                                   aria-describedby="basic-addon2">
-                        </div>
-                        <div class="row">
-                            <div class="dropdown">
-                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
-                                        data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="true">
-                                    Car Type
-                                    <span class="caret"></span>
-                                </button>
-                                <ol class="dropdown-menu" aria-labelledby="dropdownMenu1" id="categories_dropdown">
-                                    <li class="cat-category"><a href="#">Sedan</a></li>
-                                    <li class="cat-category"><a href="#">Estate</a></li>
-                                    <li class="cat-category"><a href="#">Coupe</a></li>
-                                    <li class="cat-category"><a href="#">Family Car</a></li>
-
-                                </ol>
-                            </div>
-                        </div>
-                        <div class="row input-group">
-                            <span class="input-group-addon" id="basic-addon3">Number of passangers:</span>
-                            <input type="number" class="form-control" placeholder=""
-                                   aria-describedby="basic-addon3">
-                        </div>
-                        <div class="row input-group">
-                            <span class="input-group-addon" id="basic-addon4">Maximum luggage:</span>
-                            <input type="number" class="form-control" placeholder=""
-                                   aria-describedby="basic-addon4">
-                        </div>
+                        <button id="routeTestBtn">ROUTE ME</button>
+                        <input type="text" value="Helsinki" id="start" placeholder="start">
+                        <input type="text" value="Salo" id="waypoint1" placeholder="waypoint1">
+                        <input type="text" value="Kaarina" id="waypoint2" placeholder="waypoint2">
+                        <input type="text" value="Turku" id="end" placeholder="end">
                     </div>
                 </div>
             </div>
         </div>
-        <div class="tab-pane active" id="3">
+        <div class="tab-pane" id="3">
             <!--<div class="container" id="loginContainer">
                 <input type="text" placeholder="Username" id="login-username">
                 <input type="email" placeholder="Email" id="login-email">

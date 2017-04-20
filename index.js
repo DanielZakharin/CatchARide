@@ -24,7 +24,7 @@ const Schema = mongoose.Schema;
 
 /*BODY PARSER*/
 const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 /*END BODYPARSER*/
 
@@ -38,7 +38,7 @@ const rideSchema = new Schema({
     'departureTime': {type: Date, default: moment(Date.now()).format("hh:mm:ss")},
     'departureLocation': {type: String, default: "Not set"},
     'departureCoordinates': {
-        type: [Number,Number],
+        type: [Number, Number],
         default: [1, 1]
     },
     'departureTitle': {type: String, default: "No StartPoint Set"},
@@ -46,7 +46,7 @@ const rideSchema = new Schema({
     'arrivalTime': {type: Date, default: moment(Date.now()).format("hh:mm:ss")},
     'arrivalLocation': {type: String, default: "Not set"},
     'arrivalCoordinates': {
-        type: [Number,Number],
+        type: [Number, Number],
         default: [0, 0]
     },
     'arrivalTitle': {type: String, default: "No EndPoint Set"},
@@ -95,19 +95,37 @@ app.get("/test", (req, res) => {
     res.send("help me oh god");
 });
 
-app.post("/newUser",(req,res) => {
+app.post("/newUser", (req, res) => {
     console.log("newUser triggered");
     console.log(req.body.loginName);
     modelUsers.create(req.body);
     let allusers = [];
-    modelUsers.find({}, function(err, docs) {
-        if (!err){
+    modelUsers.find({}, function (err, docs) {
+        if (!err) {
             console.log("found:");
             console.log(docs);
             allusers = docs;
-        } else {throw err;}
+        } else {
+            throw err;
+        }
     });
     res.send("Response :^) " + JSON.stringify(req.body) + allusers.toJSON);
+});
+
+app.post("/newRide", (req, res) => {
+    console.log("new ride being made");
+    modelRides.create(req.body);
+    let allRides = [];
+    modelRides.find({}, (err, res) => {
+        if (!err) {
+            console.log("found rides:");
+            console.log(res);
+            allRides = res;
+        } else {
+            throw err;
+        }
+    });
+    res.send("Response :^) " + JSON.stringify(req.body) + allRides.toJSON);
 });
 
 
