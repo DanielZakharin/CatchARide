@@ -32,18 +32,21 @@ app.use(bodyParser.json());
 const moment = require('moment');
 /*END MOMENT*/
 
+/*NODE FETCH*/
+const fetch = require('node-fetch');
+/*END NODE FETCH*/
+
 /*SCHEMAS*/
 const rideSchema = new Schema({
-    'departureDate': {type: Date, default: moment(Date.now()).format("dd.mm.yyyy")},
-    'departureTime': {type: Date, default: moment(Date.now()).format("hh:mm:ss")},
+    'departureDate': {type: Date, default: Date.now()},
+    'departureTime': {type: Date, default: Date.now()},
     'departureLocation': {type: String, default: "Not set"},
     'departureCoordinates': {
         type: [Number, Number],
         default: [1, 1]
     },
     'departureTitle': {type: String, default: "No StartPoint Set"},
-    'arrivalDate': {type: Date, default: moment(Date.now()).format("dd.mm.yyyy")},
-    'arrivalTime': {type: Date, default: moment(Date.now()).format("hh:mm:ss")},
+    'arrivalTime': {type: Date},
     'arrivalLocation': {type: String, default: "Not set"},
     'arrivalCoordinates': {
         type: [Number, Number],
@@ -55,7 +58,7 @@ const rideSchema = new Schema({
         enum: ['Sedan', 'Estate', 'Family Car', 'Compact', 'Van'],
         default: 'Not Specified'
     },
-    'passangerNumber': {
+    'passengerNumber': {
         type: Number,
         min: 0,
         max: 8,
@@ -64,6 +67,7 @@ const rideSchema = new Schema({
     'luggageAllowed': {
         type: Boolean, default: false
     },
+    'payment': {type: Number, default: 0},
     'driverId': Schema.ObjectId,
     'passangers': [Schema.ObjectId]
 
@@ -114,8 +118,26 @@ app.post("/newUser", (req, res) => {
 
 app.post("/newRide", (req, res) => {
     console.log("new ride being made");
-    modelRides.create(req.body);
-    let allRides = [];
+    let newObj = req.body;
+    console.log(req.body);
+    newObj.departureTime = new Date(newObj.departureDate +", " + newObj.departureTime);
+    newObj.arrivalTime = new Date(newObj.departureDate +", " + newObj.arrivalTime);
+    newObj.departureDate = new Date(newObj.departureDate).millisecond;
+    if(newObj.luggageAllowed == "on"){
+        newObj.luggageAllowed = true;
+    }else {
+        newObj.luggageAllowed = false;
+    }
+
+    console.log(newObj);
+    modelRides.create(newObj, (err, res) => {
+        if (!err) {
+            console.log("succesfully created a thing");
+        } else {
+            console.log("failed to create " + err);
+        }
+    });
+    /*let allRides = [];
     modelRides.find({}, (err, res) => {
         if (!err) {
             console.log("found rides:");
@@ -124,9 +146,67 @@ app.post("/newRide", (req, res) => {
         } else {
             throw err;
         }
-    });
-    res.send("Response :^) " + JSON.stringify(req.body) + allRides.toJSON);
+    });*/
+    res.send("Response :^) " + JSON.stringify(req.body));
 });
 
+app.get("/allRides",(req,res)=>{
+    let allRides = [];
+    const callback = (string) => {
+        res.send(string);
+    }
+    modelRides.find({}, (err, res) => {
+        if (!err) {
+            callback(res);
+        } else {
+            throw err;
+        }
+    });
+});
+
+app.get("/googlePolyline", (req,res)=>{
+    console.log("GooglePolyline Called");
+    //getGooglePolyline(req.body.start,req.body.end,(aaaa)=>{
+    getGooglePolyline("Helsinki","Turku",(aaaa)=>{
+        res.send(aaaa);
+    });
+});
+
+const getGooglePolyline = (start,end,callback,locArr) => {
+    let polylineUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=";
+    polylineUrl += start;
+    polylineUrl = polylineUrl +"&destination="+end;
+    if(locArr && locArr.length>0) {
+        polylineUrl += "&waypoints=";
+        for (const wp of locArr) {
+            polylineUrl+=wp+"|"
+        }
+    }
+    polylineUrl += "&mode=driving&key=" + process.env.apiKey;
+    console.log("accessing polylineUrl " + polylineUrl);
+    genericGetMethod(polylineUrl,(response)=>{
+        callback("https://maps.googleapis.com/maps/api/staticmap?center=Helsinki&zoom=13&size=600x400&path=enc:" + response.routes[0].overview_polyline.points + "&key=" + process.env.apiKey);//.overview_polyline.points);
+    });
+    //https://maps.googleapis.com/maps/api/staticmap?size=600x400&path=enc
+    //return polylineUrl;
+};
+
+const genericGetMethod = (url,callbackMethod) => {
+    fetch(url).then((response) => {
+        if (response.ok) {
+            console.log(response);
+            return response.json();
+        } else {
+            console.log("response is not ok");
+            throw new Error('Network response was not ok.');
+        }
+    }).then((response) => {
+        callbackMethod(response);
+    }).catch(function (error) {
+        console.log('Problem :( ' + error.message);
+    });
+};
 
 app.listen(3000);
+
+//console.log("GOOGLE IS A DICK!" + getGooglePolyline("turku","helsinki"));

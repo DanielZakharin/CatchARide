@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div class="row" style="height:40em">
+    <div class="col-xs-6 googlemap col-md-6" style="height:100%">
+        <div id="googleMapContainer" style="height:100%"></div>
+    </div>
+    <div class="col-xs-6">
+            Departure Date:
+            <input name="departureDate" type="date" value="Departure Date" id="planride-departureDate">*
+            <br>
+            Depart by:
+            <input name="departureTime" type="time" value="Departure Time" id="planride-departureTime">
+            <br>
+            Arrive by:
+            <input name="arrivalTime" type="time" value="Arrive By" id="planride-arrivalTime">
+            <br>
+            Departure location (Write address or click on map):
+            <input name="departureLocation" type="text" value="Helsinki" id="planride-start" placeholder="start">*
+            <br>
+            Destination (Write address or click on map):
+            <input name="arrivalLocation" type="text" value="Turku" id="planride-end" placeholder="end">*
+            <br>
+            Passangers:
+            <input name="passengerNumber" type="number" min="1" max="8" value="1" id="planride-passengers">
+            <br>
+            Allow luggage:
+            <input name="luggageAllowed" checked="false" type="checkbox" id="planride-luggage">
+            <br>
+            Car Type:
+            <select name="cartype" id="planride-cartype">
+                <option value="Sedan">Sedan</option>
+                <option value="Estate">Estate</option>
+                <option value="Family Car">Family Car</option>
+                <option value="Compact">Compact</option>
+                <option value="Van">Van</option>
+            </select>
+            <br>
+            Payment per passenger:
+            <input name="payment" type="number" id="planride-payment" value="0" min="0" max="500">
+            <br><br>
+            <button type="button" id="planride-submit"  class="btn" value="SUBMIT">
+    </div>
+</div>
+</body>
+<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+
+<script src="planride.js"></script>
+
+<link rel="stylesheet" href="/main.css">
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+      integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+
+<!-- Google maps -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASkaNSW9yX8HELM3sFITjPTGf914iFSro&callback=initMap"
+        async defer></script>
+</html>
