@@ -6,36 +6,37 @@
 /*USEFULL METHODS*/
 //URL https://maps.googleapis.com/maps/api/directions/json?origin=Boston,MA&destination=Concord,MA&waypoints=Charlestown,MA|Lexington,MA&key=YOUR_API_KEY
 /*const getGooglePolyline = (start,end,locArr) => {
-    let polylineUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=";
-    polylineUrl += start;
-    polylineUrl = polylineUrl +"&destination="+end;
-    if(locArr && locArr.length>0) {
-        polylineUrl += "&waypoints=";
-        for (const wp of locArr) {
-            polylineUrl+=wp+"|"
-        }
-    }
-    polylineUrl += "&mode=driving&key=" + config.apiKey;
-    console.log("accessing polylineUrl " + polylineUrl);
-    genericGetMethod(polylineUrl,(response)=>{
-        console.log(response.overwiev_polyline.points)
-    });
-    //https://maps.googleapis.com/maps/api/staticmap?size=600x400&path=enc
-    return polylineUrl;
-};*/
+ let polylineUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=";
+ polylineUrl += start;
+ polylineUrl = polylineUrl +"&destination="+end;
+ if(locArr && locArr.length>0) {
+ polylineUrl += "&waypoints=";
+ for (const wp of locArr) {
+ polylineUrl+=wp+"|"
+ }
+ }
+ polylineUrl += "&mode=driving&key=" + config.apiKey;
+ console.log("accessing polylineUrl " + polylineUrl);
+ genericGetMethod(polylineUrl,(response)=>{
+ console.log(response.overwiev_polyline.points)
+ });
+ //https://maps.googleapis.com/maps/api/staticmap?size=600x400&path=enc
+ return polylineUrl;
+ };*/
 
-const genericGetMethod = (url,callbackMethod) => {
+const genericGetMethod = (url, callbackMethod) => {
     const myRequest = new Request(url, {
         method: "GET",
         headers: {
             /*'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',*/
+             'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+             'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',*/
             'Content-Type': 'text/json'
         }
     });
     fetch(myRequest).then((response) => {
         if (response.ok) {
+            console.log("")
             console.log(response);
             return response.json();
         } else {
@@ -45,14 +46,14 @@ const genericGetMethod = (url,callbackMethod) => {
     }).then((response) => {
         callbackMethod(response);
     }).catch(function (error) {
-        console.log('Problem :( ' + error.message);
+        console.log('Problem in generic :( ' + error.message);
     });
 };
 /*END USEFUL METHODS*/
 
 /*POPULATING METHODS FOR FRONT PAGE*/
 const getAllRides = () => {
-    genericGetMethod("/allRides",(response)=>{
+    genericGetMethod("/allRides", (response) => {
         console.log("getallRides");
         makeRidesList(response);
     });
@@ -61,15 +62,26 @@ const getAllRides = () => {
 const makeRidesList = (array) => {
     console.log("func called");
     for (const ride of array) {
-     document.getElementById("ridesContainer").innerHTML += makeRow(ride);
-     }
+        document.getElementById("ridesContainer").innerHTML += makeRow(ride);
+    }
+};
+
+const getGooglePolyline = (start, end) => {
+    const ret = (rett) => {
+        return  rett;
+    };
+    genericGetMethod("/googlePolyline", (res) => {
+        console.log(res.url);
+        ret(res.url);
+    })
 };
 
 const makeRow = (obj) => {
-    return `<div class="container-fluid trip-container" >
+    const ret = (rett) => {
+        return `<div class="container-fluid trip-container" >
         <div class="row">
         <div class="col-md-3 col-sm-6 col-xs-12">
-        <img class="thumbnail map-thumbnail" src="` + getGooglePolyline(obj.departureLocation,obj.arrivalLocation) + `"/>
+        <img class="thumbnail map-thumbnail" src="` + /*getGooglePolyline(obj.departureLocation, obj.arrivalLocation)*/ rett + `"/>
         </div>
         <div class="col-md-5 col-sm-6 col-xs-12 container cat-information">
         <div class="row" style="margin-bottom:2em;">
@@ -92,13 +104,16 @@ const makeRow = (obj) => {
         </div>
 
         </div>`
+    };
+    genericGetMethod("/googlePolyline", (res) => {
+        console.log(res.url);
+        ret(res.url);
+    })
 };
 console.log("THIS IS CONFIG " + config.apiKey);
 getAllRides();
 
 /*END POPULATING METHODS*/
-
-
 
 
 $("#login-submit").click((event) => {

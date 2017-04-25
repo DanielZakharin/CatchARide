@@ -18,7 +18,7 @@ const mongoUsr = process.env.DB_USERNAME;
 const mongoPwd = process.env.DB_PASSWORD;
 const mongoUrl = process.env.DB_URL;
 const mongoPath = 'mongodb://' + mongoUsr + ':' + mongoPwd + '@' + mongoUrl;
-console.log('this is the mongopath ' + mongoPath);
+//console.log('this is the mongopath ' + mongoPath);
 const Schema = mongoose.Schema;
 /*END MONGOOSE*/
 
@@ -83,13 +83,13 @@ const modelUsers = mongoose.model('users', userSchema);
 
 /*MOGNOOSE CONNECT*/
 mongoose.connect(mongoPath).then(() => {
-    console.log('Connected successfully to: ' + mongoPath);
+    //console.log('Connected successfully to: ' + mongoPath);
     //UNCOMMENT TO DELETE DB
     /*model.remove(() => {
-     console.log('removed db');
+     //console.log('removed db');
      });*/
 }, err => {
-    console.log('Connection to db failed to : ' + mongoPath + err);
+    //console.log('Connection to db failed to : ' + mongoPath + err);
 });
 /*END MONGOOSE CONNECT*/
 
@@ -100,14 +100,14 @@ app.get("/test", (req, res) => {
 });
 
 app.post("/newUser", (req, res) => {
-    console.log("newUser triggered");
-    console.log(req.body.loginName);
+    //console.log("newUser triggered");
+    //console.log(req.body.loginName);
     modelUsers.create(req.body);
     let allusers = [];
     modelUsers.find({}, function (err, docs) {
         if (!err) {
-            console.log("found:");
-            console.log(docs);
+            //console.log("found:");
+            //console.log(docs);
             allusers = docs;
         } else {
             throw err;
@@ -117,9 +117,9 @@ app.post("/newUser", (req, res) => {
 });
 
 app.post("/newRide", (req, res) => {
-    console.log("new ride being made");
+    //console.log("new ride being made");
     let newObj = req.body;
-    console.log(req.body);
+    //console.log(req.body);
     newObj.departureTime = new Date(newObj.departureDate +", " + newObj.departureTime);
     newObj.arrivalTime = new Date(newObj.departureDate +", " + newObj.arrivalTime);
     newObj.departureDate = new Date(newObj.departureDate).millisecond;
@@ -129,19 +129,19 @@ app.post("/newRide", (req, res) => {
         newObj.luggageAllowed = false;
     }
 
-    console.log(newObj);
+    //console.log(newObj);
     modelRides.create(newObj, (err, res) => {
         if (!err) {
-            console.log("succesfully created a thing");
+            //console.log("succesfully created a thing");
         } else {
-            console.log("failed to create " + err);
+            //console.log("failed to create " + err);
         }
     });
     /*let allRides = [];
     modelRides.find({}, (err, res) => {
         if (!err) {
-            console.log("found rides:");
-            console.log(res);
+            //console.log("found rides:");
+            //console.log(res);
             allRides = res;
         } else {
             throw err;
@@ -153,7 +153,9 @@ app.post("/newRide", (req, res) => {
 app.get("/allRides",(req,res)=>{
     let allRides = [];
     const callback = (string) => {
-        res.send(string);
+        console.log("sending");
+        console.log(string);
+        res.send(JSON.stringify(string));
     }
     modelRides.find({}, (err, res) => {
         if (!err) {
@@ -165,10 +167,10 @@ app.get("/allRides",(req,res)=>{
 });
 
 app.get("/googlePolyline", (req,res)=>{
-    console.log("GooglePolyline Called");
     //getGooglePolyline(req.body.start,req.body.end,(aaaa)=>{
     getGooglePolyline("Helsinki","Turku",(aaaa)=>{
-        res.send(aaaa);
+        console.log("POLYLINE SENDING " + aaaa);
+        res.send(JSON.stringify({"url": aaaa}));
     });
 });
 
@@ -183,7 +185,7 @@ const getGooglePolyline = (start,end,callback,locArr) => {
         }
     }
     polylineUrl += "&mode=driving&key=" + process.env.apiKey;
-    console.log("accessing polylineUrl " + polylineUrl);
+    //console.log("accessing polylineUrl " + polylineUrl);
     genericGetMethod(polylineUrl,(response)=>{
         callback("https://maps.googleapis.com/maps/api/staticmap?center=Helsinki&zoom=13&size=600x400&path=enc:" + response.routes[0].overview_polyline.points + "&key=" + process.env.apiKey);//.overview_polyline.points);
     });
@@ -194,19 +196,19 @@ const getGooglePolyline = (start,end,callback,locArr) => {
 const genericGetMethod = (url,callbackMethod) => {
     fetch(url).then((response) => {
         if (response.ok) {
-            console.log(response);
+            //console.log(response);
             return response.json();
         } else {
-            console.log("response is not ok");
+            //console.log("response is not ok");
             throw new Error('Network response was not ok.');
         }
     }).then((response) => {
         callbackMethod(response);
     }).catch(function (error) {
-        console.log('Problem :( ' + error.message);
+        //console.log('Problem :( ' + error.message);
     });
 };
 
 app.listen(3000);
 
-//console.log("GOOGLE IS A DICK!" + getGooglePolyline("turku","helsinki"));
+////console.log("GOOGLE IS A DICK!" + getGooglePolyline("turku","helsinki"));
