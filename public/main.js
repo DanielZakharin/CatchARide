@@ -68,7 +68,8 @@ const makeRidesList = (array) => {
 
 const getGooglePolyline = (start, end) => {
     const ret = (rett) => {
-        return  rett;
+        console.log("RETT" + rett);
+        return rett;
     };
     genericGetMethod("/googlePolyline", (res) => {
         console.log(res.url);
@@ -77,11 +78,10 @@ const getGooglePolyline = (start, end) => {
 };
 
 const makeRow = (obj) => {
-    const ret = (rett) => {
-        return `<div class="container-fluid trip-container" >
+    return `<div class="container-fluid trip-container" >
         <div class="row">
         <div class="col-md-3 col-sm-6 col-xs-12">
-        <img class="thumbnail map-thumbnail" src="` + /*getGooglePolyline(obj.departureLocation, obj.arrivalLocation)*/ rett + `"/>
+        <img class="thumbnail map-thumbnail" src="` + /*getGooglePolyline(obj.departureLocation, obj.arrivalLocation)*/obj.thumbnail + `"/>
         </div>
         <div class="col-md-5 col-sm-6 col-xs-12 container cat-information">
         <div class="row" style="margin-bottom:2em;">
@@ -104,12 +104,8 @@ const makeRow = (obj) => {
         </div>
 
         </div>`
-    };
-    genericGetMethod("/googlePolyline", (res) => {
-        console.log(res.url);
-        ret(res.url);
-    })
-};
+}
+
 console.log("THIS IS CONFIG " + config.apiKey);
 getAllRides();
 

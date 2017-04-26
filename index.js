@@ -36,6 +36,10 @@ const moment = require('moment');
 const fetch = require('node-fetch');
 /*END NODE FETCH*/
 
+/* ASYNC */
+const async = require("async");
+/*END ASYNC*/
+
 /*SCHEMAS*/
 const rideSchema = new Schema({
     'departureDate': {type: Date, default: Date.now()},
@@ -68,6 +72,7 @@ const rideSchema = new Schema({
         type: Boolean, default: false
     },
     'payment': {type: Number, default: 0},
+    'thumbnail': {type: String, default: "https://i.ytimg.com/vi/cNycdfFEgBc/maxresdefault.jpg"},
     'driverId': Schema.ObjectId,
     'passangers': [Schema.ObjectId]
 
@@ -85,8 +90,8 @@ const modelUsers = mongoose.model('users', userSchema);
 mongoose.connect(mongoPath).then(() => {
     //console.log('Connected successfully to: ' + mongoPath);
     //UNCOMMENT TO DELETE DB
-    /*model.remove(() => {
-     //console.log('removed db');
+    /*modelRides.remove(() => {
+     console.log('removed db');
      });*/
 }, err => {
     //console.log('Connection to db failed to : ' + mongoPath + err);
@@ -120,80 +125,77 @@ app.post("/newRide", (req, res) => {
     //console.log("new ride being made");
     let newObj = req.body;
     //console.log(req.body);
-    newObj.departureTime = new Date(newObj.departureDate +", " + newObj.departureTime);
-    newObj.arrivalTime = new Date(newObj.departureDate +", " + newObj.arrivalTime);
+    newObj.departureTime = new Date(newObj.departureDate + ", " + newObj.departureTime);
+    newObj.arrivalTime = new Date(newObj.departureDate + ", " + newObj.arrivalTime);
     newObj.departureDate = new Date(newObj.departureDate).millisecond;
-    if(newObj.luggageAllowed == "on"){
+    if (newObj.luggageAllowed == "on") {
         newObj.luggageAllowed = true;
-    }else {
+    } else {
         newObj.luggageAllowed = false;
     }
-
-    //console.log(newObj);
-    modelRides.create(newObj, (err, res) => {
-        if (!err) {
-            //console.log("succesfully created a thing");
-        } else {
-            //console.log("failed to create " + err);
+    async.series([
+         (callback) => {
+            if (!newObj.thumbnail) {
+                getGooglePolyline(newObj.departureLocation, newObj.arrivalLocation, (res) => {
+                    newObj.thumbnail = res;
+                    console.log("this is called");
+                    callback();
+                });
+            }
+        },
+        (callback) => {
+            console.log("NEW AND TASTY");
+            console.log(newObj);
+            modelRides.create(newObj, (err, res) => {
+                if (!err) {
+                    //console.log("succesfully created a thing");
+                } else {
+                    //console.log("failed to create " + err);
+                }
+            });
+            res.send("Response :^) " + JSON.stringify(req.body));
         }
-    });
-    /*let allRides = [];
-    modelRides.find({}, (err, res) => {
-        if (!err) {
-            //console.log("found rides:");
-            //console.log(res);
-            allRides = res;
-        } else {
-            throw err;
-        }
-    });*/
-    res.send("Response :^) " + JSON.stringify(req.body));
+    ]);
 });
 
-app.get("/allRides",(req,res)=>{
-    let allRides = [];
-    const callback = (string) => {
-        console.log("sending");
-        console.log(string);
-        res.send(JSON.stringify(string));
-    }
-    modelRides.find({}, (err, res) => {
+app.get("/allRides", (req, res) => {
+    modelRides.find({}, (err, ress) => {
         if (!err) {
-            callback(res);
+            res.send(ress);
         } else {
             throw err;
         }
     });
 });
 
-app.get("/googlePolyline", (req,res)=>{
+app.get("/googlePolyline", (req, res) => {
     //getGooglePolyline(req.body.start,req.body.end,(aaaa)=>{
-    getGooglePolyline("Helsinki","Turku",(aaaa)=>{
+    getGooglePolyline("Helsinki", "Turku", (aaaa) => {
         console.log("POLYLINE SENDING " + aaaa);
         res.send(JSON.stringify({"url": aaaa}));
     });
 });
 
-const getGooglePolyline = (start,end,callback,locArr) => {
+const getGooglePolyline = (start, end, callback, locArr) => {
     let polylineUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=";
     polylineUrl += start;
-    polylineUrl = polylineUrl +"&destination="+end;
-    if(locArr && locArr.length>0) {
+    polylineUrl = polylineUrl + "&destination=" + end;
+    if (locArr && locArr.length > 0) {
         polylineUrl += "&waypoints=";
         for (const wp of locArr) {
-            polylineUrl+=wp+"|"
+            polylineUrl += wp + "|"
         }
     }
     polylineUrl += "&mode=driving&key=" + process.env.apiKey;
     //console.log("accessing polylineUrl " + polylineUrl);
-    genericGetMethod(polylineUrl,(response)=>{
-        callback("https://maps.googleapis.com/maps/api/staticmap?center=Helsinki&zoom=13&size=600x400&path=enc:" + response.routes[0].overview_polyline.points + "&key=" + process.env.apiKey);//.overview_polyline.points);
+    genericGetMethod(polylineUrl, (response) => {
+        callback("https://maps.googleapis.com/maps/api/staticmap?&size=600x400&path=enc:" + response.routes[0].overview_polyline.points + "&key=" + process.env.apiKey);//.overview_polyline.points);
     });
     //https://maps.googleapis.com/maps/api/staticmap?size=600x400&path=enc
     //return polylineUrl;
 };
 
-const genericGetMethod = (url,callbackMethod) => {
+const genericGetMethod = (url, callbackMethod) => {
     fetch(url).then((response) => {
         if (response.ok) {
             //console.log(response);
