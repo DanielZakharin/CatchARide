@@ -100,31 +100,23 @@ mongoose.connect(mongoPath).then(() => {
 
 app.use(express.static("public"));
 
-app.get("/test", (req, res) => {
-    res.send("help me oh god");
-});
 
 app.post("/newUser", (req, res) => {
-    //console.log("newUser triggered");
-    //console.log(req.body.loginName);
+    console.log(req.body);
     modelUsers.create(req.body);
-    let allusers = [];
-    modelUsers.find({}, function (err, docs) {
-        if (!err) {
-            //console.log("found:");
-            //console.log(docs);
-            allusers = docs;
-        } else {
-            throw err;
+    modelUsers.find({'email': new RegExp(req.params.email, 'i')}, (err, result) => {
+        if(!err){
+            res.send(result);
+        }else {
+
+            res.send({"error" : err});
         }
     });
-    res.send("Response :^) " + JSON.stringify(req.body) + allusers.toJSON);
 });
 
 app.post("/newRide", (req, res) => {
-    //console.log("new ride being made");
     let newObj = req.body;
-    //console.log(req.body);
+    console.log(req.body);
     newObj.departureTime = new Date(newObj.departureDate + ", " + newObj.departureTime);
     newObj.arrivalTime = new Date(newObj.departureDate + ", " + newObj.arrivalTime);
     newObj.departureDate = new Date(newObj.departureDate).millisecond;
@@ -134,7 +126,7 @@ app.post("/newRide", (req, res) => {
         newObj.luggageAllowed = false;
     }
     async.series([
-         (callback) => {
+        (callback) => {
             if (!newObj.thumbnail) {
                 getGooglePolyline(newObj.departureLocation, newObj.arrivalLocation, (res) => {
                     newObj.thumbnail = res;
@@ -168,6 +160,52 @@ app.get("/allRides", (req, res) => {
     });
 });
 
+app.get("/singleRide/:id",(req,res)=>{
+    console.log("singleride triggered " + req.params.id);
+    modelRides.findById(req.params.id, (err, result) => {
+        if(!err){
+            console.log("found ride with id" + result);
+            res.send(result);
+        }else {
+            console.log("Error with search");
+            res.send({"error" : err});
+        }
+    });
+});
+
+app.post("/joinRide",(req,res)=>{
+    let join = res.body;
+    modelRides.findById(join.rideId, (err, result) => {
+        if(!err){
+            console.log("found ride with id" + result);
+        }else {
+            console.log("Error with search");
+            res.send({"error" : err});
+        }
+    });
+});
+
+app.get("/allUsers", (req,res)=>{
+    modelUsers.find({},(err,result)=>{
+        if (!err) {
+            res.send(result);
+        } else {
+            throw err;
+        }
+    })
+})
+
+app.get("/singleUser/:email", (req, res) => {
+    modelUsers.find({'email': new RegExp(req.params.email, 'i')}, (err, result) => {
+        if(!err){
+            res.send(result);
+        }else {
+
+            res.send({"error" : err});
+        }
+    });
+});
+
 app.get("/googlePolyline", (req, res) => {
     //getGooglePolyline(req.body.start,req.body.end,(aaaa)=>{
     getGooglePolyline("Helsinki", "Turku", (aaaa) => {
@@ -195,6 +233,10 @@ const getGooglePolyline = (start, end, callback, locArr) => {
     //return polylineUrl;
 };
 
+const makeNewUser = (uname,email) => {
+    modelUsers.create({"username" : uname, "email": email});
+}
+
 const genericGetMethod = (url, callbackMethod) => {
     fetch(url).then((response) => {
         if (response.ok) {
@@ -212,5 +254,3 @@ const genericGetMethod = (url, callbackMethod) => {
 };
 
 app.listen(3000);
-
-////console.log("GOOGLE IS A DICK!" + getGooglePolyline("turku","helsinki"));

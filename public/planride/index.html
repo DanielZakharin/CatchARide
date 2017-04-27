@@ -6,47 +6,86 @@
 </head>
 <body>
 
-<div class="row" style="height:40em">
-    <div class="col-xs-6 googlemap col-md-6" style="height:100%">
-        <div id="googleMapContainer" style="height:100%"></div>
-    </div>
-    <div class="col-xs-6">
-            Departure Date:
-            <input name="departureDate" type="date" value="Departure Date" id="planride-departureDate">*
-            <br>
-            Depart by:
-            <input name="departureTime" type="time" value="Departure Time" id="planride-departureTime">
-            <br>
-            Arrive by:
-            <input name="arrivalTime" type="time" value="Arrive By" id="planride-arrivalTime">
-            <br>
-            Departure location (Write address or click on map):
-            <input name="departureLocation" type="text" value="Helsinki" id="planride-start" placeholder="start">*
-            <br>
-            Destination (Write address or click on map):
-            <input name="arrivalLocation" type="text" value="Turku" id="planride-end" placeholder="end">*
-            <br>
-            Passangers:
-            <input name="passengerNumber" type="number" min="1" max="8" value="1" id="planride-passengers">
-            <br>
-            Allow luggage:
-            <input name="luggageAllowed" checked="false" type="checkbox" id="planride-luggage">
-            <br>
-            Car Type:
-            <select name="cartype" id="planride-cartype">
-                <option value="Sedan">Sedan</option>
-                <option value="Estate">Estate</option>
-                <option value="Family Car">Family Car</option>
-                <option value="Compact">Compact</option>
-                <option value="Van">Van</option>
-            </select>
-            <br>
-            Payment per passenger:
-            <input name="payment" type="number" id="planride-payment" value="0" min="0" max="500">
-            <br><br>
-            <button type="button" id="planride-submit"  class="btn" value="SUBMIT">
+<div id="exTab2" class="container">
+    <ul class="nav nav-tabs">
+        <li>
+            <a href="/">Browse</a>
+        </li>
+        <li class="active"><a href="/planride">Plan a Ride</a>
+        </li>
+        <li><a href="">Login/Register</a>
+        </li>
+    </ul>
+
+    <div class="tab-content ">
+        <div class="tab-pane" id="1">
+            <div class="container" id="ridesContainer">
+
+            </div>
+        </div>
+        <div class="tab-pane active" id="2">
+            <div class="container">
+                <div class="row" style="height:40em">
+                    <div class="col-xs-6 googlemap col-md-6" style="height:100%">
+                        <div id="googleMapContainer" style="height:100%"></div>
+                    </div>
+                    <div class="col-xs-6">
+                        <form>
+                            Departure Date:
+                            <input name="departureDate" type="date" value="Departure Date" id="planride-departureDate" required>*
+                            <br>
+                            Depart by:
+                            <input name="departureTime" type="time" value="Departure Time" id="planride-departureTime">
+                            <br>
+                            Arrive by:
+                            <input name="arrivalTime" type="time" value="Arrive By" id="planride-arrivalTime">
+                            <br>
+                            Departure location (Write address or click on map):
+                            <input name="departureLocation" type="text" value="Helsinki" id="planride-start"
+                                   placeholder="start" required>*
+                            <br>
+                            Destination (Write address or click on map):
+                            <input name="arrivalLocation" type="text" value="Turku" id="planride-end" placeholder="end" required>*
+                            <br>
+                            Passangers:
+                            <input name="passengerNumber" type="number" min="1" max="8" value="1"
+                                   id="planride-passengers" required>
+                            <br>
+                            Allow luggage:
+                            <input name="luggageAllowed" checked="false" type="checkbox" id="planride-luggage">
+                            <br>
+                            Car Type:
+                            <select name="cartype" id="planride-cartype" required>
+                                <option value="Sedan">Sedan</option>
+                                <option value="Estate">Estate</option>
+                                <option value="Family Car">Family Car</option>
+                                <option value="Compact">Compact</option>
+                                <option value="Van">Van</option>
+                            </select>
+                            <br>
+                            Payment per passenger:
+                            <input name="payment" type="number" id="planride-payment" value="0" min="0" max="500" required>
+                            <br>
+                            Contact E-mail
+                            <input name="email" type="email" id="planride-email" required>
+                            <br><br>
+                            <button type="button" id="planride-submit" class="btn" value="SUBMIT">SUBMIT</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="3">
+            <form method="post" action="/newUser">
+                <input name="userName" type="text" placeholder="Username">
+                <input name="email" placeholder="email">
+                <button type="submit" class="btn">Log In</button>
+            </form>
+        </div>
     </div>
 </div>
+
+
 </body>
 <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
 

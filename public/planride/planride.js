@@ -13,10 +13,7 @@ let directionsDisplay;
 let geocoder;
 let distanceMatrix;
 /*END MAPS VARIABLES*/
-
 let flipFlop = true;
-
-
 
 /*GOOGLE MAPS*/
 /**
@@ -72,7 +69,8 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
                     });
             }
         }
-    };
+    }
+    ;
     directionsService.route({
         origin: document.getElementById('planride-start').value,
         waypoints: wayptsGoogle,
@@ -145,7 +143,7 @@ const calculateTotalDistance = (origin, destination, waypts) => {
 };
 
 /**
- * calculates only distance between two points
+ * calculates  distance and time between two points
  * @param origin
  * @param destination
  * @param callback
@@ -176,6 +174,10 @@ const calculateDistance = (origin, destination, callback) => {
 
 /*END GOOGLE MAPS*/
 
+/**
+ * sets departure and arrival locations alternatively
+ * @param address
+ */
 const setDepArr = (address) => {
     if (flipFlop) {
         document.getElementById("planride-start").value = address;
@@ -187,11 +189,18 @@ const setDepArr = (address) => {
     calculateAndDisplayRoute(directionsService, directionsDisplay);
 };
 
-const valueOfField = (id)=>{
+/**
+ * gets value from a html element
+ * @param id
+ */
+const valueOfField = (id) => {
     return document.getElementById(id).value;
 };
 
-
+/**
+ * constructs an object from all fields
+ * @returns {{}}
+ */
 const constructObjectFromFields = () => {
     const newRide = {};
     newRide.departureDate = valueOfField("planride-departureDate");
@@ -206,6 +215,68 @@ const constructObjectFromFields = () => {
     return newRide;
 };
 
+const checkUserExists = () => {
+    const email = valueOfField("planride-email");
+    genericGetMethod("/singleUser/:" + email, (res) => {
+        if (!res.hasOwnProperty("error")) {
+            console.log("found single user ");
+            console.log(res);
+            if (res.length > 0) {
+                return true;
+            } else {
+                genericPostMethod("/newUser", {"userName": "guest" + Date.now(), "email": email}, (res) => {
+                    console.log(res);
+                });
+                window.alert("A new usera was created for email " + email);
+                return true;
+            }
+        } else {
+            window.alert("ERROR WITH USER FETCH");
+            return false;
+        }
+    })
+};
+
+
+const genericGetMethod = (url, callbackMethod) => {
+    const myRequest = new Request(url, {
+        method: "GET",
+        headers: {
+            /*'Access-Control-Allow-Origin': '*',
+             'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+             'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',*/
+            'Content-Type': 'text/json'
+        }
+    });
+    fetch(myRequest).then((response) => {
+        if (response.ok) {
+            console.log("")
+            console.log(response);
+            return response.json();
+        } else {
+            console.log("response is not ok");
+            throw new Error('Network response was not ok.');
+        }
+    }).then((response) => {
+        callbackMethod(response);
+    }).catch(function (error) {
+        console.log('Problem in generic :( ' + error.message);
+    });
+};
+
+const genericPostMethod = (url, reqBody, callback) => {
+    const myRequest = new Request(url, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(reqBody)
+
+    });
+    fetch(myRequest).then(function (response) {
+        callback(response);
+    });
+}
+
+/*EVENT LISTENERS*/
 $("#plan-ride-tab").click(() => {
     console.log("tab presd");
     setTimeout(() => {
@@ -213,18 +284,11 @@ $("#plan-ride-tab").click(() => {
     }, 1);
 });
 
-$("#planride-submit").click((event)=>{
-    console.log("clicked a thing");
-    const formData_edit = new FormData();
-    formData_edit.append("test", "test");
-
-    const myRequest = new Request("/newRide", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify(constructObjectFromFields())
-
-    });
-    fetch(myRequest).then(function (response) {
-        console.log(response);
+$("#planride-submit").click((event) => {
+    //check email, create new user if needed
+    checkUserExists();
+    genericPostMethod("/newRide", constructObjectFromFields(), (res) => {
+        console.log(res);
     });
 });
+/*END EVENT LISTENERS*/

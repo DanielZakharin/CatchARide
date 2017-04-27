@@ -17,9 +17,9 @@
             </div>
             <div class="modal-body">
                 <div class="input-group">
-                    <span class="input-group-addon" id="basic-addon5">From:</span>
+                    <span class="input-group-addon" id="basic-addon5">E-mail:</span>
                     <input type="text" class="form-control" placeholder=" "
-                           aria-describedby="basic-addon5">
+                           aria-describedby="basic-addon5" id="modal-email">
                 </div>
                 <div class=" input-group">
                     <span class="input-group-addon" id="basic-addon6">Number of passangers:</span>
@@ -34,7 +34,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary">Sign Up</button>
+                <button type="button" id="modal-join" class="btn btn-primary">Sign Up</button>
             </div>
         </div>
     </div>
@@ -43,11 +43,13 @@
 <div id="exTab2" class="container">
     <ul class="nav nav-tabs">
         <li class="active">
-            <a href="#1" data-toggle="tab">Browse</a>
+            <a href="/">Browse</a>
         </li>
-        <li><a href="#2" data-toggle="tab" id="plan-ride-tab">Plan a Ride</a>
+        <li>
+            <a href="/planride" >Plan a Ride</a>
         </li>
-        <li><a href="/planride"  id="login-tab">Login/Register</a>
+        <li>
+            <a href="#3">Login/Register</a>
         </li>
     </ul>
 
@@ -72,7 +74,7 @@
             </div>-->
             <form method="post" action="/newUser">
                 <input name="userName" type="text" placeholder="Username">
-                <input name="email"placeholder="email">
+                <input name="email" placeholder="email">
                 <button type="submit" class="btn">Log In</button>
             </form>
         </div>

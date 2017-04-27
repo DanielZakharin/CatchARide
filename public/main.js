@@ -2,28 +2,9 @@
  * Created by Daniel on 30/03/2017.
  */
 "use strict";
-
+let currentRide;
+let currentUser;
 /*USEFULL METHODS*/
-//URL https://maps.googleapis.com/maps/api/directions/json?origin=Boston,MA&destination=Concord,MA&waypoints=Charlestown,MA|Lexington,MA&key=YOUR_API_KEY
-/*const getGooglePolyline = (start,end,locArr) => {
- let polylineUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=";
- polylineUrl += start;
- polylineUrl = polylineUrl +"&destination="+end;
- if(locArr && locArr.length>0) {
- polylineUrl += "&waypoints=";
- for (const wp of locArr) {
- polylineUrl+=wp+"|"
- }
- }
- polylineUrl += "&mode=driving&key=" + config.apiKey;
- console.log("accessing polylineUrl " + polylineUrl);
- genericGetMethod(polylineUrl,(response)=>{
- console.log(response.overwiev_polyline.points)
- });
- //https://maps.googleapis.com/maps/api/staticmap?size=600x400&path=enc
- return polylineUrl;
- };*/
-
 const genericGetMethod = (url, callbackMethod) => {
     const myRequest = new Request(url, {
         method: "GET",
@@ -100,17 +81,67 @@ const makeRow = (obj) => {
 
         </div>
         <div class="row text-center" id="button-footer">
-        <button class="btn button-footer-button" data-toggle="modal" data-target="#myModal">Join</button>
+        <button data-id="` + obj._id + `" class="btn button-footer-button">Join</button>
         </div>
-
         </div>`
 }
-
-console.log("THIS IS CONFIG " + config.apiKey);
 getAllRides();
 
 /*END POPULATING METHODS*/
 
+const setValueOfField = (id, val) => {
+    document.getElementById(id).innerHTML = val;
+};
+const valueOfField = (id) => {
+    return document.getElementById(id).value;
+};
+
+const setupModal = (obj) => {
+    setValueOfField("myModalLabel", obj.departureLocation + " - " + obj.arrivalLocation);
+};
+
+const checkUserExists = () => {
+    const email = valueOfField("modal-email");
+    genericGetMethod("/singleUser/:" + email, (res) => {
+        if (!res.hasOwnProperty("error")) {
+            console.log("found single user ");
+            console.log(res);
+            if (res.length > 0) {
+                return true;
+            } else {
+                genericPostMethod("/newUser", {"userName": "guest" + Date.now(), "email": email}, (res) => {
+                    console.log(res);
+                });
+                window.alert("A new usera was created for email " + email);
+                return true;
+            }
+        } else {
+            window.alert("ERROR WITH USER FETCH");
+            return false;
+        }
+    })
+};
+
+$("#ridesContainer").on("click", ".button-footer-button", (event) => {
+    const id = $(event.target).attr("data-id");
+    console.log("clicked on view btn" + id);
+    genericGetMethod("/singleRide/" + id, (res) => {
+        console.log("setting modal title to " + res.departureLocation);
+        currentRide = res;
+        setupModal(res);
+        $('#myModal').modal('show');
+    });
+});
+
+$("#modal-join").click((event)=>{
+    checkUserExists();
+    genericPostMethod("/joinRide",{
+        "rideId": currentRide._id,
+        "joinerId":
+    },(res)=>{
+
+    })
+});
 
 $("#login-submit").click((event) => {
     console.log("login clicked");
@@ -132,3 +163,4 @@ $("#login-submit").click((event) => {
     });
 
 });
+$('#myModal').modal({show: false})
