@@ -190,33 +190,25 @@ const setDepArr = (address) => {
 };
 
 /**
- * gets value from a html element
- * @param id
- */
-const valueOfField = (id) => {
-    return document.getElementById(id).value;
-};
-
-/**
  * constructs an object from all fields
  * @returns {{}}
  */
 const constructObjectFromFields = () => {
     const newRide = {};
-    newRide.departureDate = valueOfField("planride-departureDate");
-    newRide.departureTime = valueOfField("planride-departureTime");
-    newRide.arrivalTime = valueOfField("planride-arrivalTime");
-    newRide.departureLocation = valueOfField("planride-start");
-    newRide.arrivalLocation = valueOfField("planride-end");
-    newRide.passengerNumber = valueOfField("planride-passengers");
-    newRide.luggageAllowed = valueOfField("planride-luggage");
-    newRide.cartype = valueOfField("planride-cartype");
-    newRide.payment = valueOfField("planride-payment");
+    newRide.departureDate = config.valueOfField("planride-departureDate");
+    newRide.departureTime = config.valueOfField("planride-departureTime");
+    newRide.arrivalTime = config.valueOfField("planride-arrivalTime");
+    newRide.departureLocation = config.valueOfField("planride-start");
+    newRide.arrivalLocation = config.valueOfField("planride-end");
+    newRide.passengerNumber = config.valueOfField("planride-passengers");
+    newRide.luggageAllowed = config.valueOfField("planride-luggage");
+    newRide.cartype = config.valueOfField("planride-cartype");
+    newRide.payment = config.valueOfField("planride-payment");
     return newRide;
 };
 
 const checkUserExists = () => {
-    const email = valueOfField("planride-email");
+    const email = config.valueOfField("planride-email");
     config.genericGetMethod("/singleUser/:" + email, (res) => {
         if (!res.hasOwnProperty("error")) {
             console.log("found single user ");

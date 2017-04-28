@@ -48,6 +48,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 /*END PASSPORT*/
 
+/*CONNECT_FLASH*/
+const flash = require("connect-flash");
+app.use(flash());
+/*END FLASH*/
+
 /*DOTENV*/
 const dotenv = require('dotenv').config();
 /*END DOTENV*/
@@ -190,24 +195,16 @@ app.post('/register', (req, res) => {
         if (err) res.send(err);
         console.log(user);
     });
-
-    //req.flash('success_msg', 'You are registered and can now login');
-
     res.redirect('/');
 
 });
 
-app.post('/login',
-    passport.authenticate('local', {successRedirect:'/', failureRedirect:'/login'}),
-    function(req, res) {
-        res.redirect('/');
+app.post('/login',passport.authenticate('local'),(req, res) => {
+        res.send({userName:req.user.userName,email:req.user.email});
     });
 
-app.get('/logout', function(req, res){
+app.get('/logout', (req, res) => {
     req.logout();
-
-    //req.flash('success_msg', 'You are logged out');
-
     res.redirect('/users/login');
 });
 

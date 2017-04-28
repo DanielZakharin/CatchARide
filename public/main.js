@@ -65,19 +65,15 @@ getAllRides();
 
 /*END POPULATING METHODS*/
 
-const setValueOfField = (id, val) => {
-    document.getElementById(id).innerHTML = val;
-};
-const valueOfField = (id) => {
-    return document.getElementById(id).value;
-};
+
+
 
 const setupModal = (obj) => {
-    setValueOfField("myModalLabel", obj.departureLocation + " - " + obj.arrivalLocation);
+    config.setvalueOfField("myModalLabel", obj.departureLocation + " - " + obj.arrivalLocation);
 };
 
 const checkUserExists = () => {
-    const email = valueOfField("modal-email");
+    const email = config.valueOfField("modal-email");
     config.genericGetMethod("/singleUser/:" + email, (res) => {
         if (!res.hasOwnProperty("error")) {
             console.log("found single user ");
