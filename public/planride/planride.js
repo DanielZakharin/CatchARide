@@ -217,14 +217,14 @@ const constructObjectFromFields = () => {
 
 const checkUserExists = () => {
     const email = valueOfField("planride-email");
-    genericGetMethod("/singleUser/:" + email, (res) => {
+    config.genericGetMethod("/singleUser/:" + email, (res) => {
         if (!res.hasOwnProperty("error")) {
             console.log("found single user ");
             console.log(res);
             if (res.length > 0) {
                 return true;
             } else {
-                genericPostMethod("/newUser", {"userName": "guest" + Date.now(), "email": email}, (res) => {
+                config.genericPostMethod("/newUser", {"userName": "guest" + Date.now(), "email": email}, (res) => {
                     console.log(res);
                 });
                 window.alert("A new usera was created for email " + email);
@@ -237,45 +237,6 @@ const checkUserExists = () => {
     })
 };
 
-
-const genericGetMethod = (url, callbackMethod) => {
-    const myRequest = new Request(url, {
-        method: "GET",
-        headers: {
-            /*'Access-Control-Allow-Origin': '*',
-             'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-             'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',*/
-            'Content-Type': 'text/json'
-        }
-    });
-    fetch(myRequest).then((response) => {
-        if (response.ok) {
-            console.log("")
-            console.log(response);
-            return response.json();
-        } else {
-            console.log("response is not ok");
-            throw new Error('Network response was not ok.');
-        }
-    }).then((response) => {
-        callbackMethod(response);
-    }).catch(function (error) {
-        console.log('Problem in generic :( ' + error.message);
-    });
-};
-
-const genericPostMethod = (url, reqBody, callback) => {
-    const myRequest = new Request(url, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(reqBody)
-
-    });
-    fetch(myRequest).then(function (response) {
-        callback(response);
-    });
-}
-
 /*EVENT LISTENERS*/
 $("#plan-ride-tab").click(() => {
     console.log("tab presd");
@@ -287,7 +248,7 @@ $("#plan-ride-tab").click(() => {
 $("#planride-submit").click((event) => {
     //check email, create new user if needed
     checkUserExists();
-    genericPostMethod("/newRide", constructObjectFromFields(), (res) => {
+    config.genericPostMethod("/newRide", constructObjectFromFields(), (res) => {
         console.log(res);
     });
 });

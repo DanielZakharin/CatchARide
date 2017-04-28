@@ -7,6 +7,47 @@ const express = require("express");
 const app = express();
 /*END EXPRESS*/
 
+/*PASSPORT*/
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+passport.use(new LocalStrategy(
+    (username, password, done) => {
+        modelUsers.findOne({"userName": username}, (err, user) => {
+            if (err) throw err;
+            if (!user) {
+                return done(null, false, {message: 'Unknown User'});
+            }
+            /*TODO: IMPLEMENT BCRYPT*/
+            /*User.comparePassword(password, user.password, function(err, isMatch){
+             if(err) throw err;
+             if(isMatch){
+             return done(null, user);
+             } else {
+             return done(null, false, {message: 'Invalid password'});
+             }
+             });*/
+            console.log("comparing " + user.password + " " + password);
+            if (user.password == password) {
+                return done(null, user);
+            } else {
+                return done(null, false, {message: 'Invalid password'});
+            }
+        });
+    }));
+
+passport.serializeUser(function (user, done) {
+    done(null, user.id);
+});
+
+passport.deserializeUser(function (id, done) {
+    User.getUserById(id, function (err, user) {
+        done(err, user);
+    });
+});
+app.use(passport.initialize());
+app.use(passport.session());
+/*END PASSPORT*/
+
 /*DOTENV*/
 const dotenv = require('dotenv').config();
 /*END DOTENV*/
@@ -74,11 +115,14 @@ const rideSchema = new Schema({
     'payment': {type: Number, default: 0},
     'thumbnail': {type: String, default: "https://i.ytimg.com/vi/cNycdfFEgBc/maxresdefault.jpg"},
     'driverId': Schema.ObjectId,
-    'passangers': [Schema.ObjectId]
+    'passangersAccepted': [Schema.ObjectId],
+    'passangersPending': [Schema.ObjectId]
+
 
 });
 const userSchema = new Schema({
     'userName': {type: String, defualt: "Nönnönnöö"},
+    'password': {type: String, required: true},
     'email': {type: String, default: "esim@posti.jou"}
 });
 
@@ -105,13 +149,66 @@ app.post("/newUser", (req, res) => {
     console.log(req.body);
     modelUsers.create(req.body);
     modelUsers.find({'email': new RegExp(req.params.email, 'i')}, (err, result) => {
-        if(!err){
+        if (!err) {
             res.send(result);
-        }else {
+        } else {
 
-            res.send({"error" : err});
+            res.send({"error": err});
         }
     });
+});
+
+app.post('/register', (req, res) => {
+    const email = req.body.email;
+    const username = req.body.username;
+    const password = req.body.password;
+    //var password2 = req.body.password2;
+
+    // Validation
+    /*req.checkBody('name', 'Name is required').notEmpty();
+     req.checkBody('email', 'Email is required').notEmpty();
+     req.checkBody('email', 'Email is not valid').isEmail();
+     req.checkBody('username', 'Username is required').notEmpty();
+     req.checkBody('password', 'Password is required').notEmpty();*/
+    //req.checkBody('password2', 'Passwords do not match').equals(req.body.password);
+
+    /*const errors = req.validationErrors();
+
+     if(errors){
+     /*res.render('register',{
+     errors:errors
+     });
+     res.send("ERROR WITH CREATING USER " + errors);
+     } else {*/
+    const newUser = {
+        "email": email,
+        "userName": username,
+        "password": password
+    };
+
+    modelUsers.create(newUser, (err, user) => {
+        if (err) res.send(err);
+        console.log(user);
+    });
+
+    //req.flash('success_msg', 'You are registered and can now login');
+
+    res.redirect('/');
+
+});
+
+app.post('/login',
+    passport.authenticate('local', {successRedirect:'/', failureRedirect:'/login'}),
+    function(req, res) {
+        res.redirect('/');
+    });
+
+app.get('/logout', function(req, res){
+    req.logout();
+
+    //req.flash('success_msg', 'You are logged out');
+
+    res.redirect('/users/login');
 });
 
 app.post("/newRide", (req, res) => {
@@ -160,33 +257,33 @@ app.get("/allRides", (req, res) => {
     });
 });
 
-app.get("/singleRide/:id",(req,res)=>{
+app.get("/singleRide/:id", (req, res) => {
     console.log("singleride triggered " + req.params.id);
     modelRides.findById(req.params.id, (err, result) => {
-        if(!err){
+        if (!err) {
             console.log("found ride with id" + result);
             res.send(result);
-        }else {
+        } else {
             console.log("Error with search");
-            res.send({"error" : err});
+            res.send({"error": err});
         }
     });
 });
 
-app.post("/joinRide",(req,res)=>{
+app.post("/joinRide", (req, res) => {
     let join = res.body;
     modelRides.findById(join.rideId, (err, result) => {
-        if(!err){
+        if (!err) {
             console.log("found ride with id" + result);
-        }else {
+        } else {
             console.log("Error with search");
-            res.send({"error" : err});
+            res.send({"error": err});
         }
     });
 });
 
-app.get("/allUsers", (req,res)=>{
-    modelUsers.find({},(err,result)=>{
+app.get("/allUsers", (req, res) => {
+    modelUsers.find({}, (err, result) => {
         if (!err) {
             res.send(result);
         } else {
@@ -197,11 +294,11 @@ app.get("/allUsers", (req,res)=>{
 
 app.get("/singleUser/:email", (req, res) => {
     modelUsers.find({'email': new RegExp(req.params.email, 'i')}, (err, result) => {
-        if(!err){
+        if (!err) {
             res.send(result);
-        }else {
+        } else {
 
-            res.send({"error" : err});
+            res.send({"error": err});
         }
     });
 });
@@ -233,8 +330,8 @@ const getGooglePolyline = (start, end, callback, locArr) => {
     //return polylineUrl;
 };
 
-const makeNewUser = (uname,email) => {
-    modelUsers.create({"username" : uname, "email": email});
+const makeNewUser = (uname, email) => {
+    modelUsers.create({"username": uname, "email": email});
 }
 
 const genericGetMethod = (url, callbackMethod) => {

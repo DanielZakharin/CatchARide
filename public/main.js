@@ -5,36 +5,12 @@
 let currentRide;
 let currentUser;
 /*USEFULL METHODS*/
-const genericGetMethod = (url, callbackMethod) => {
-    const myRequest = new Request(url, {
-        method: "GET",
-        headers: {
-            /*'Access-Control-Allow-Origin': '*',
-             'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-             'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',*/
-            'Content-Type': 'text/json'
-        }
-    });
-    fetch(myRequest).then((response) => {
-        if (response.ok) {
-            console.log("")
-            console.log(response);
-            return response.json();
-        } else {
-            console.log("response is not ok");
-            throw new Error('Network response was not ok.');
-        }
-    }).then((response) => {
-        callbackMethod(response);
-    }).catch(function (error) {
-        console.log('Problem in generic :( ' + error.message);
-    });
-};
+
 /*END USEFUL METHODS*/
 
 /*POPULATING METHODS FOR FRONT PAGE*/
 const getAllRides = () => {
-    genericGetMethod("/allRides", (response) => {
+    config.genericGetMethod("/allRides", (response) => {
         console.log("getallRides");
         makeRidesList(response);
     });
@@ -52,10 +28,10 @@ const getGooglePolyline = (start, end) => {
         console.log("RETT" + rett);
         return rett;
     };
-    genericGetMethod("/googlePolyline", (res) => {
+    config.genericGetMethod("/googlePolyline", (res) => {
         console.log(res.url);
         ret(res.url);
-    })
+    });
 };
 
 const makeRow = (obj) => {
@@ -102,14 +78,14 @@ const setupModal = (obj) => {
 
 const checkUserExists = () => {
     const email = valueOfField("modal-email");
-    genericGetMethod("/singleUser/:" + email, (res) => {
+    config.genericGetMethod("/singleUser/:" + email, (res) => {
         if (!res.hasOwnProperty("error")) {
             console.log("found single user ");
             console.log(res);
             if (res.length > 0) {
                 return true;
             } else {
-                genericPostMethod("/newUser", {"userName": "guest" + Date.now(), "email": email}, (res) => {
+                config.genericPostMethod("/newUser", {"userName": "guest" + Date.now(), "email": email}, (res) => {
                     console.log(res);
                 });
                 window.alert("A new usera was created for email " + email);
@@ -125,7 +101,7 @@ const checkUserExists = () => {
 $("#ridesContainer").on("click", ".button-footer-button", (event) => {
     const id = $(event.target).attr("data-id");
     console.log("clicked on view btn" + id);
-    genericGetMethod("/singleRide/" + id, (res) => {
+    config.genericGetMethod("/singleRide/" + id, (res) => {
         console.log("setting modal title to " + res.departureLocation);
         currentRide = res;
         setupModal(res);
@@ -135,11 +111,12 @@ $("#ridesContainer").on("click", ".button-footer-button", (event) => {
 
 $("#modal-join").click((event)=>{
     checkUserExists();
-    genericPostMethod("/joinRide",{
+    config.genericPostMethod("/joinRide",{
         "rideId": currentRide._id,
-        "joinerId":
+        "joinerId": currentUser._id
     },(res)=>{
-
+        console.log("Rs from modal join");
+        console.log(res);
     })
 });
 
@@ -163,4 +140,5 @@ $("#login-submit").click((event) => {
     });
 
 });
+
 $('#myModal').modal({show: false})
