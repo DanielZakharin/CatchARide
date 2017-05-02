@@ -209,7 +209,8 @@ const constructObjectFromFields = () => {
     newRide.payment = config.valueOfField("planride-payment");
     newRide.username = config.valueOfField("planride-username");
     newRide.password = config.valueOfField("planride-password");
-    newRide.maxDistance = config.valueOfField("planride-maxdistance");
+    newRide.maximumDistance = config.valueOfField("planride-maxdistance");
+    newRide.totalDistance = totalDistance;
     return newRide;
 };
 /*

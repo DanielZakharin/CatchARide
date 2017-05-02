@@ -134,7 +134,7 @@ $("#join-address").on("blur", (event) => {
     console.log("BLURR" + event.target.id + config.valueOfField(event.target.id));
     if (config.valueOfField(event.target.id) != undefined && config.valueOfField(event.target.id) != "") {
         calcRoute(currentRide.departureLocation,currentRide.arrivalLocation,[config.valueOfField("join-address")],(dist) => {
-            console.log(dist + " " + currentRide.maxDistance + " " + currentRide.totalDistance);
+            console.log(dist + " " + currentRide.maximumDistance + " " + currentRide.totalDistance);
             const jee = (dist - currentRide.totalDistance)/2;
             console.log(jee);
         });
