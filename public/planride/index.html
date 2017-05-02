@@ -32,7 +32,8 @@
                     <div class="col-xs-6">
                         <form>
                             Departure Date:
-                            <input name="departureDate" type="date" value="Departure Date" id="planride-departureDate" required>*
+                            <input name="departureDate" type="date" value="Departure Date" id="planride-departureDate"
+                                   required>*
                             <br>
                             Depart by:
                             <input name="departureTime" type="time" value="Departure Time" id="planride-departureTime">
@@ -41,15 +42,19 @@
                             <input name="arrivalTime" type="time" value="Arrive By" id="planride-arrivalTime">
                             <br>
                             Departure location (Write address or click on map):
-                            <input name="departureLocation" type="text" value="Helsinki" id="planride-start"
+                            <input class="deparr" name="departureLocation" type="text" value="Helsinki" id="planride-start"
                                    placeholder="start" required>*
                             <br>
                             Destination (Write address or click on map):
-                            <input name="arrivalLocation" type="text" value="Turku" id="planride-end" placeholder="end" required>*
+                            <input class="deparr" name="arrivalLocation" type="text" value="Turku" id="planride-end" placeholder="end"
+                                   required>*
                             <br>
                             Passangers:
                             <input name="passengerNumber" type="number" min="1" max="8" value="1"
                                    id="planride-passengers" required>
+                            <br>Maxiumum distance from route:
+                            <input name="passengerNumber" type="number" min="0" value="1"
+                                   id="planride-maxdistance" required>
                             <br>
                             Allow luggage:
                             <input name="luggageAllowed" checked="false" type="checkbox" id="planride-luggage">
@@ -64,7 +69,8 @@
                             </select>
                             <br>
                             Payment per passenger:
-                            <input name="payment" type="number" id="planride-payment" value="0" min="0" max="500" required>
+                            <input name="payment" type="number" id="planride-payment" value="0" min="0" max="500"
+                                   required>
                             <br><br>
                             Username
                             <input name="username" type="text" id="planride-username" required>

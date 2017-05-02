@@ -14,6 +14,7 @@ let geocoder;
 let distanceMatrix;
 /*END MAPS VARIABLES*/
 let flipFlop = true;
+let totalDistance = 0;
 
 /*GOOGLE MAPS*/
 /**
@@ -81,7 +82,7 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
             directionsDisplay.setDirections(response);
             //calculateTotalDistance(document.getElementById('start').value, document.getElementById('end').value, waypts);
         } else {
-            window.alert('Directions request failed due to ' + status);
+            window.alert("Address not found");
         }
     });
 }
@@ -118,29 +119,29 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
 /**
  * Calculates total distance
  */
-const calculateTotalDistance = (origin, destination, waypts) => {
-    console.log("calculate distance triggered");
-    let totalTime = 0;
-    let totalDist = 0;
-    if (waypts) {
-        calculateDistance(origin, waypts[0], (res, dist) => {
-            totalTime += res;
-            totalDist += dist;
-            calculateDistance(waypts[waypts.length - 1], destination, (res, dist) => {
-                totalTime += res;
-                totalDist += dist;
-                for (let i = 0; i < waypts.length - 1; i++) {
-                    calculateDistance(waypts[i], waypts[i + 1], (res, dist) => {
-                        totalDist += dist;
-                        totalTime += res;
-                        console.log(totalTime / 60 + "total time :D, totla dist " + totalDist / 1000);
-                    });
-                }
-            })
-        });
-    }
+/*const calculateTotalDistance = (origin, destination, waypts) => {
+ console.log("calculate distance triggered");
+ let totalTime = 0;
+ let totalDist = 0;
+ if (waypts) {
+ calculateDistance(origin, waypts[0], (res, dist) => {
+ totalTime += res;
+ totalDist += dist;
+ calculateDistance(waypts[waypts.length - 1], destination, (res, dist) => {
+ totalTime += res;
+ totalDist += dist;
+ for (let i = 0; i < waypts.length - 1; i++) {
+ calculateDistance(waypts[i], waypts[i + 1], (res, dist) => {
+ totalDist += dist;
+ totalTime += res;
+ console.log(totalTime / 60 + "total time :D, totla dist " + totalDist / 1000);
+ });
+ }
+ })
+ });
+ }
 
-};
+ };*/
 
 /**
  * calculates  distance and time between two points
@@ -150,10 +151,12 @@ const calculateTotalDistance = (origin, destination, waypts) => {
  * @returns {*}
  */
 const calculateDistance = (origin, destination, callback) => {
+    console.log(typeof origin);
+    console.log(typeof destination);
     return distanceMatrix.getDistanceMatrix({
         origins: [origin],
         destinations: [destination],
-        travelMode: 'DRIVING',
+        travelMode: google.maps.TravelMode.DRIVING,
         unitSystem: google.maps.UnitSystem.METRIC,
         avoidHighways: false,
         avoidTolls: false
@@ -206,31 +209,44 @@ const constructObjectFromFields = () => {
     newRide.payment = config.valueOfField("planride-payment");
     newRide.username = config.valueOfField("planride-username");
     newRide.password = config.valueOfField("planride-password");
+    newRide.maxDistance = config.valueOfField("planride-maxdistance");
     return newRide;
 };
 /*
-const checkUserExists = () => {
-    const email = config.valueOfField("planride-email");
-    config.genericGetMethod("/singleUser/:" + email, (res) => {
-        if (!res.hasOwnProperty("error")) {
-            console.log("found single user ");
-            console.log(res);
-            if (res.length > 0) {
-                return true;
-            } else {
-                config.genericPostMethod("/newUser", {"userName": "guest" + Date.now(), "email": email}, (res) => {
-                    console.log(res);
-                });
-                window.alert("A new usera was created for email " + email);
-                return true;
-            }
-        } else {
-            window.alert("ERROR WITH USER FETCH");
-            return false;
-        }
-    })
-};*/
+ const checkUserExists = () => {
+ const email = config.valueOfField("planride-email");
+ config.genericGetMethod("/singleUser/:" + email, (res) => {
+ if (!res.hasOwnProperty("error")) {
+ console.log("found single user ");
+ console.log(res);
+ if (res.length > 0) {
+ return true;
+ } else {
+ config.genericPostMethod("/newUser", {"userName": "guest" + Date.now(), "email": email}, (res) => {
+ console.log(res);
+ });
+ window.alert("A new usera was created for email " + email);
+ return true;
+ }
+ } else {
+ window.alert("ERROR WITH USER FETCH");
+ return false;
+ }
+ })
+ };*/
 
+
+const updateDistance = () => {
+    const i = config.valueOfField("planride-start");
+    const j = config.valueOfField("planride-end");
+    if(i != undefined && i != "" && j != undefined && j != ""){
+        console.log(i + "  " + j);
+        calculateDistance(i.toString(),j.toString(),(time,distnace)=>{
+            totalDistance = distnace;
+            console.log("distance now at" + totalDistance);
+        })
+    }
+}
 /*EVENT LISTENERS*/
 $("#plan-ride-tab").click(() => {
     console.log("tab presd");
@@ -244,13 +260,31 @@ $("#planride-submit").click((event) => {
     //checkUserExists();
     config.genericPostMethod("/newRide", constructObjectFromFields(), (res) => {
         console.log(res);
-        if(res.error){
-            if(res.errorcode == 401){
+        if (res.error) {
+            if (res.errorcode == 401) {
                 window.alert("Wrong username or password");
             }
-        }else{
+        } else {
             console.log("All okay");
         }
     });
+});
+
+$(".deparr").on("blur", (event) => {
+    console.log("BLURR" + event.target.id + config.valueOfField(event.target.id));
+    if (config.valueOfField(event.target.id) != undefined && config.valueOfField(event.target.id) != "") {
+        calculateAndDisplayRoute(directionsService, directionsDisplay);
+        if ((config.valueOfField(event.target.id) != undefined && config.valueOfField(event.target.id) != "")) {
+            calculateDistance();
+            updateDistance();
+        }
+    }
+});
+
+$(".deparr").keyup(function (event) {
+    console.log("keyup");
+    if (event.keyCode == 13) {
+        $("#"+event.target.id).blur();
+    }
 });
 /*END EVENT LISTENERS*/

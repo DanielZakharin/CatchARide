@@ -5,6 +5,7 @@
 let currentRide;
 let currentUser;
 let geocoder;
+let directionsService;
 /*USEFULL METHODS*/
 
 /*END USEFUL METHODS*/
@@ -128,6 +129,71 @@ $("#modal-join").click((event) => {
 
 });
 
+
+$("#join-address").on("blur", (event) => {
+    console.log("BLURR" + event.target.id + config.valueOfField(event.target.id));
+    if (config.valueOfField(event.target.id) != undefined && config.valueOfField(event.target.id) != "") {
+        calcRoute(currentRide.departureLocation,currentRide.arrivalLocation,[config.valueOfField("join-address")],(dist) => {
+            console.log(dist + " " + currentRide.maxDistance + " " + currentRide.totalDistance);
+            const jee = (dist - currentRide.totalDistance)/2;
+            console.log(jee);
+        });
+    }
+});
+
+$("#join-address").keyup(function (event) {
+    console.log("keyup");
+    if (event.keyCode == 13) {
+        $("#"+event.target.id).blur();
+    }
+});
+
+const checkMaxDistanceValidity = (start,end,waypoint, maxdistance) => {
+
+};
+/*EXPERIMENTAL*/
+ const calcRoute = (start,end,waypts,callback) => {
+     let wayArray = [];
+     for (const pt of waypts){
+         wayArray.push({
+             location: pt,
+             stopover: true
+         });
+     };
+
+    var request = {
+        origin: start,
+        destination: end,
+        waypoints: wayArray,
+        optimizeWaypoints: true,
+        travelMode: google.maps.DirectionsTravelMode.DRIVING
+    };
+    console.log(request);
+    directionsService.route(request, (response, status)=> {
+        if (status == google.maps.DirectionsStatus.OK) {
+            var route = response.routes[0];
+            var summaryPanel = document.getElementById("directions_panel");
+            // For each route, display summary information.
+            computeTotalDistance(response,callback);
+        } else {
+            alert("directions response " + status);
+        }
+    });
+}
+
+function computeTotalDistance(result,callback) {
+    var totalDist = 0;
+    var totalTime = 0;
+    var myroute = result.routes[0];
+    for (let i = 0; i < myroute.legs.length; i++) {
+        totalDist += myroute.legs[i].distance.value;
+        totalTime += myroute.legs[i].duration.value;
+    }
+    callback(totalDist);
+ }
+
+/*END EXPERIMENTAL*/
+
 const checkJoinFieldsValidity = (callback) => {
     if(config.valueOfField("join-address")) {
         geocoder.geocode({'address': config.valueOfField("join-address")}, function (results, status) {
@@ -164,4 +230,5 @@ $('#myModal').modal({show: false});
 function initMap(){
     console.log("google maps init ");
     geocoder = new google.maps.Geocoder;
+    directionsService = new google.maps.DirectionsService;
 };

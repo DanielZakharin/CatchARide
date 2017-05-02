@@ -126,6 +126,7 @@ const rideSchema = new Schema({
     },
     'payment': {type: Number, default: 0},
     'maximumDistance': {type: Number, default: 0},
+    'totalDistance': {type:Number, default:0},
     'thumbnail': {type: String, default: "https://i.ytimg.com/vi/cNycdfFEgBc/maxresdefault.jpg"},
     'driverId': Schema.ObjectId,
     'passangersAccepted': {type: Array, default: []},
