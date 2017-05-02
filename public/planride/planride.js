@@ -204,9 +204,11 @@ const constructObjectFromFields = () => {
     newRide.luggageAllowed = config.valueOfField("planride-luggage");
     newRide.cartype = config.valueOfField("planride-cartype");
     newRide.payment = config.valueOfField("planride-payment");
+    newRide.username = config.valueOfField("planride-username");
+    newRide.password = config.valueOfField("planride-password");
     return newRide;
 };
-
+/*
 const checkUserExists = () => {
     const email = config.valueOfField("planride-email");
     config.genericGetMethod("/singleUser/:" + email, (res) => {
@@ -227,7 +229,7 @@ const checkUserExists = () => {
             return false;
         }
     })
-};
+};*/
 
 /*EVENT LISTENERS*/
 $("#plan-ride-tab").click(() => {
@@ -239,9 +241,16 @@ $("#plan-ride-tab").click(() => {
 
 $("#planride-submit").click((event) => {
     //check email, create new user if needed
-    checkUserExists();
+    //checkUserExists();
     config.genericPostMethod("/newRide", constructObjectFromFields(), (res) => {
         console.log(res);
+        if(res.error){
+            if(res.errorcode == 401){
+                window.alert("Wrong username or password");
+            }
+        }else{
+            console.log("All okay");
+        }
     });
 });
 /*END EVENT LISTENERS*/

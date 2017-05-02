@@ -2,13 +2,37 @@
  * Created by Daniel on 30/03/2017.
  */
 
-/*EXPRESS*/
+/*CONSTANT IMPORTS*/
 const express = require("express");
+const session = require("express-session");
+const passport = require("passport");
+const dotenv = require('dotenv').config();
+const mongoose = require('mongoose');
+const bodyParser = require("body-parser");
+const moment = require('moment');
+const fetch = require('node-fetch');
+const async = require("async");
+const cookieParser = require("cookie-parser");
+/*END CONSTANTS*/
+
+/*EXPRESS*/
 const app = express();
+app.use(session({
+    secret: "Secret1",
+    resave: true,
+    saveUninitialized: false
+}))
 /*END EXPRESS*/
 
+/*COOKIE PARSER*/
+app.use(cookieParser("Cookie1"));
+/*END COOKIEPARSER*/
+
 /*PASSPORT*/
-const passport = require("passport");
+app.use(passport.initialize());
+app.use(passport.session({
+    secret: "Secret1"
+}));
 const LocalStrategy = require("passport-local").Strategy;
 passport.use(new LocalStrategy(
     (username, password, done) => {
@@ -44,8 +68,6 @@ passport.deserializeUser(function (id, done) {
         done(err, user);
     });
 });
-app.use(passport.initialize());
-app.use(passport.session());
 /*END PASSPORT*/
 
 /*CONNECT_FLASH*/
@@ -54,11 +76,9 @@ app.use(flash());
 /*END FLASH*/
 
 /*DOTENV*/
-const dotenv = require('dotenv').config();
 /*END DOTENV*/
 
 /*MONGOOSE*/
-const mongoose = require('mongoose');
 mongoose.Promise = global.Promise; //ES6 Promise
 const mongoUsr = process.env.DB_USERNAME;
 const mongoPwd = process.env.DB_PASSWORD;
@@ -69,22 +89,9 @@ const Schema = mongoose.Schema;
 /*END MONGOOSE*/
 
 /*BODY PARSER*/
-const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 /*END BODYPARSER*/
-
-/*MOMENT*/
-const moment = require('moment');
-/*END MOMENT*/
-
-/*NODE FETCH*/
-const fetch = require('node-fetch');
-/*END NODE FETCH*/
-
-/* ASYNC */
-const async = require("async");
-/*END ASYNC*/
 
 /*SCHEMAS*/
 const rideSchema = new Schema({
@@ -118,10 +125,11 @@ const rideSchema = new Schema({
         type: Boolean, default: false
     },
     'payment': {type: Number, default: 0},
+    'maximumDistance': {type: Number, default: 0},
     'thumbnail': {type: String, default: "https://i.ytimg.com/vi/cNycdfFEgBc/maxresdefault.jpg"},
     'driverId': Schema.ObjectId,
-    'passangersAccepted': [Schema.ObjectId],
-    'passangersPending': [Schema.ObjectId]
+    'passangersAccepted': {type: Array, default: []},
+    'passangersPending': {type: Array, default: []},
 
 
 });
@@ -142,6 +150,10 @@ mongoose.connect(mongoPath).then(() => {
     /*modelRides.remove(() => {
      console.log('removed db');
      });*/
+    /*
+     modelUsers.remove(()=>{
+     console.log("removed users");
+     })*/
 }, err => {
     //console.log('Connection to db failed to : ' + mongoPath + err);
 });
@@ -149,66 +161,65 @@ mongoose.connect(mongoPath).then(() => {
 
 app.use(express.static("public"));
 
-
-app.post("/newUser", (req, res) => {
-    console.log(req.body);
-    modelUsers.create(req.body);
-    modelUsers.find({'email': new RegExp(req.params.email, 'i')}, (err, result) => {
-        if (!err) {
-            res.send(result);
-        } else {
-
-            res.send({"error": err});
-        }
-    });
-});
-
 app.post('/register', (req, res) => {
     const email = req.body.email;
     const username = req.body.username;
     const password = req.body.password;
-    //var password2 = req.body.password2;
 
-    // Validation
-    /*req.checkBody('name', 'Name is required').notEmpty();
-     req.checkBody('email', 'Email is required').notEmpty();
-     req.checkBody('email', 'Email is not valid').isEmail();
-     req.checkBody('username', 'Username is required').notEmpty();
-     req.checkBody('password', 'Password is required').notEmpty();*/
-    //req.checkBody('password2', 'Passwords do not match').equals(req.body.password);
+    modelUsers.findOne({"userName": username}, (err, user) => {
+        if (!err) {
+            console.log(user + "user");
+            if (user) {
+                return res.send(JSON.stringify({status: false, message: "A user with that name already exists."}));
+            } else {
+                const newUser = {
+                    "email": email,
+                    "userName": username,
+                    "password": password
+                };
 
-    /*const errors = req.validationErrors();
-
-     if(errors){
-     /*res.render('register',{
-     errors:errors
-     });
-     res.send("ERROR WITH CREATING USER " + errors);
-     } else {*/
-    const newUser = {
-        "email": email,
-        "userName": username,
-        "password": password
-    };
-
-    modelUsers.create(newUser, (err, user) => {
-        if (err) res.send(err);
-        console.log(user);
+                modelUsers.create(newUser, (err, user) => {
+                    if (err) {
+                        console.log("ERROR WITH CREATING USER" + err);
+                        return res.send(JSON.stringify({error: err}));
+                    }
+                    console.log(user);
+                    return res.send(JSON.stringify({
+                        status: true,
+                        user: newUser
+                    }))
+                });
+            }
+        }
     });
-    res.redirect('/');
+
 
 });
 
-app.post('/login',passport.authenticate('local'),(req, res) => {
-        res.send({userName:req.user.userName,email:req.user.email});
+app.post('/login', passport.authenticate('local', {session: true}), (req, res) => {
+    req.logIn(req.user, function (err) {
+        if (err) {
+            console.log("ERROR WITH LOGIN");
+        } else {
+            console.log("ITS GOOD?");
+            return res.send({success: true, message: 'AI AI AI', user: req.user});
+        }
     });
+    //res.send({userName: req.user.userName, email: req.user.email});
+});
 
 app.get('/logout', (req, res) => {
     req.logout();
     res.redirect('/users/login');
 });
 
+app.post("/newRide", passport.authenticate('local', {session: true}), (req, res, next) => {
+    console.log("this is first");
+    next();
+});
+
 app.post("/newRide", (req, res) => {
+    console.log("this is second");
     let newObj = req.body;
     console.log(req.body);
     newObj.departureTime = new Date(newObj.departureDate + ", " + newObj.departureTime);
@@ -224,14 +235,11 @@ app.post("/newRide", (req, res) => {
             if (!newObj.thumbnail) {
                 getGooglePolyline(newObj.departureLocation, newObj.arrivalLocation, (res) => {
                     newObj.thumbnail = res;
-                    console.log("this is called");
                     callback();
                 });
             }
         },
         (callback) => {
-            console.log("NEW AND TASTY");
-            console.log(newObj);
             modelRides.create(newObj, (err, res) => {
                 if (!err) {
                     //console.log("succesfully created a thing");
@@ -247,7 +255,7 @@ app.post("/newRide", (req, res) => {
 app.get("/allRides", (req, res) => {
     modelRides.find({}, (err, ress) => {
         if (!err) {
-            res.send(ress);
+            return res.send(ress);
         } else {
             throw err;
         }
@@ -259,30 +267,71 @@ app.get("/singleRide/:id", (req, res) => {
     modelRides.findById(req.params.id, (err, result) => {
         if (!err) {
             console.log("found ride with id" + result);
-            res.send(result);
+            return res.send(result);
         } else {
             console.log("Error with search");
-            res.send({"error": err});
+            return res.send({"error": err});
         }
     });
 });
 
+app.post("/joinRide", passport.authenticate('local', {session: true}), (req, res, next) => {
+    console.log("JOINRIDE 1");
+    next();
+});
+
 app.post("/joinRide", (req, res) => {
-    let join = res.body;
-    modelRides.findById(join.rideId, (err, result) => {
-        if (!err) {
-            console.log("found ride with id" + result);
-        } else {
-            console.log("Error with search");
-            res.send({"error": err});
-        }
-    });
+    console.log("JOINRIDE 2");
+    let join = req.body;
+    let user;
+    async.series([(callback) => {
+        modelUsers.findOne({username: req.username}, null, (err, res) => {
+            if (!err) {
+                user = res;
+                console.log("USER IS NOW" + user);
+                callback();
+            }
+        });
+    }, (callback) => {
+        console.log(join);
+        modelRides.findById(join.rideId, (err, result) => {
+            if (!err) {
+                console.log("found ride with id" + join.rideId);
+                /*
+                 modelRides.find({"passangersPending.id":user._id},(err,res)=>{
+                 console.log("FIIIIIIIND " + user._id);
+                 console.log(res);
+                 });*/
+                if (!checkArrayForUserId(result.passangersPending, user._id)) {
+                    result.passangersPending.push({
+                        userID: user._id,
+                        address: req.body.address,
+                        email: req.body.email
+                    });
+                    console.log(result.passangersPending);
+                    result.save((err) => {
+                        if (!err) {
+                            res.send({status: true});
+                        } else {
+                            res.send({status: false, error: err});
+                        }
+                    });
+                } else {
+                    console.log("User already on the list");
+                    res.send({status: false, message: "You have already signed up for this ride"})
+                }
+            } else {
+                console.log("Error with search");
+                res.send({status: false, "error": err});
+            }
+        });
+    }])
 });
 
 app.get("/allUsers", (req, res) => {
     modelUsers.find({}, (err, result) => {
         if (!err) {
-            res.send(result);
+            return res.send(result);
         } else {
             throw err;
         }
@@ -292,10 +341,10 @@ app.get("/allUsers", (req, res) => {
 app.get("/singleUser/:email", (req, res) => {
     modelUsers.find({'email': new RegExp(req.params.email, 'i')}, (err, result) => {
         if (!err) {
-            res.send(result);
+            return res.send(result);
         } else {
 
-            res.send({"error": err});
+            return res.send({"error": err});
         }
     });
 });
@@ -304,7 +353,7 @@ app.get("/googlePolyline", (req, res) => {
     //getGooglePolyline(req.body.start,req.body.end,(aaaa)=>{
     getGooglePolyline("Helsinki", "Turku", (aaaa) => {
         console.log("POLYLINE SENDING " + aaaa);
-        res.send(JSON.stringify({"url": aaaa}));
+        return res.send(JSON.stringify({"url": aaaa}));
     });
 });
 
@@ -327,10 +376,6 @@ const getGooglePolyline = (start, end, callback, locArr) => {
     //return polylineUrl;
 };
 
-const makeNewUser = (uname, email) => {
-    modelUsers.create({"username": uname, "email": email});
-}
-
 const genericGetMethod = (url, callbackMethod) => {
     fetch(url).then((response) => {
         if (response.ok) {
@@ -345,6 +390,18 @@ const genericGetMethod = (url, callbackMethod) => {
     }).catch(function (error) {
         //console.log('Problem :( ' + error.message);
     });
+};
+
+const checkArrayForUserId = (array, id) => {
+    for (const elem of array) {
+        console.log("comaparing " + elem.userID + "  " + id.toString());
+        if (elem.userID == id.toString()) {
+            console.log("returning true");
+            return true;
+        }
+    }
+    console.log("returning false");
+    return false;
 };
 
 app.listen(3000);

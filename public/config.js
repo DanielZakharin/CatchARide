@@ -34,10 +34,12 @@ config.genericPostMethod = (url, reqBody, callbackMethod) => {
     });
     fetch(myRequest).then((response) => {
         if (response.ok) {
+            console.log(response);
             return response.json();
         } else {
-            console.log("response is not ok");
-            throw new Error('Network response was not ok.');
+            console.log("response is not ok, sending ");
+            console.log(response);
+            return({error: true, errorcode: response.status});
         }
     }).then((response) => {
         callbackMethod(response);

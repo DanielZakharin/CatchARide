@@ -4,6 +4,7 @@
 "use strict";
 let currentRide;
 let currentUser;
+let geocoder;
 /*USEFULL METHODS*/
 
 /*END USEFUL METHODS*/
@@ -66,8 +67,6 @@ getAllRides();
 /*END POPULATING METHODS*/
 
 
-
-
 const setupModal = (obj) => {
     config.setvalueOfField("myModalLabel", obj.departureLocation + " - " + obj.arrivalLocation);
 };
@@ -105,36 +104,64 @@ $("#ridesContainer").on("click", ".button-footer-button", (event) => {
     });
 });
 
-$("#modal-join").click((event)=>{
-    checkUserExists();
-    config.genericPostMethod("/joinRide",{
-        "rideId": currentRide._id,
-        "joinerId": currentUser._id
-    },(res)=>{
-        console.log("Rs from modal join");
-        console.log(res);
-    })
-});
-
-$("#login-submit").click((event) => {
-    console.log("login clicked");
-    /*const formData = new FormData();
-     formData.append("test","test");*/
-    const test = {"test": "test"};
-    const url = "http://localhost:3000";
-    const myRequest = new Request(url + "/newUser", {
-        method: "POST",
-        headers: new Headers({
-            "content-type": "application/json"
-        }),
-        body: test
-
-    });
-    //console.log(formData);
-    fetch(myRequest).then(function (response) {
-        console.log(response);
+$("#modal-join").click((event) => {
+    checkJoinFieldsValidity(() => {
+        config.genericPostMethod("/joinRide", {
+            "rideId": currentRide._id,
+            username: config.valueOfField("join-username"),
+            password: config.valueOfField("join-password")
+        }, (res) => {
+            if (res.error) {
+                if (res.errorcode == 401) {
+                    window.alert("Wrong username or password");
+                }
+            } else {
+                console.log(res);
+                if (res.status) {
+                    $('#myModal').modal('hide');
+                } else {
+                    window.alert(res.message);
+                }
+            }
+        });
     });
 
 });
 
-$('#myModal').modal({show: false})
+const checkJoinFieldsValidity = (callback) => {
+    if(config.valueOfField("join-address")) {
+        geocoder.geocode({'address': config.valueOfField("join-address")}, function (results, status) {
+            if (status == 'OK') {
+                console.log("GOOGLE GEOCODE SUCCESFULL FOR ADDRESS");
+                console.log(results);
+                if(checkAddressLocationValidity(results)){
+                    callback();
+                }else{
+                    window.alert("Not in finland");
+                }
+            } else {
+                window.alert('Geocode was not successful for the following reason: ' + status);
+            }
+        });
+    }else{
+        window.alert("Please set an address");
+    }
+};
+
+const checkAddressLocationValidity = (array) => {
+    for(const obj of array) {
+        for(const component of obj.address_components){
+            if(component.short_name == "FI"){
+                return true;
+            }
+        }
+    }
+    return false;
+};
+
+$('#myModal').modal({show: false});
+
+function initMap(){
+    console.log("google maps init ");
+    geocoder = new google.maps.Geocoder;
+};
