@@ -99,6 +99,7 @@ app.use(flash());
 
 /*MONGOOSE*/
 mongoose.Promise = global.Promise; //ES6 Promise
+const ObjectID = require('mongodb').ObjectID;
 const mongoUsr = process.env.DB_USERNAME;
 const mongoPwd = process.env.DB_PASSWORD;
 const mongoUrl = process.env.DB_URL;
@@ -147,7 +148,7 @@ const rideSchema = new Schema({
     'maximumDistance': {type: Number, default: 0},
     'totalDistance': {type: Number, default: 0},
     'thumbnail': {type: String, default: "https://i.ytimg.com/vi/cNycdfFEgBc/maxresdefault.jpg"},
-    'driverId': Schema.ObjectId,
+    'driverId': {type: String,required: true},
     'passangersAccepted': {type: Array, default: []},
     'passangersPending': {type: Array, default: []},
 
@@ -167,10 +168,10 @@ const modelUsers = mongoose.model('users', userSchema);
 mongoose.connect(mongoPath).then(() => {
     //console.log('Connected successfully to: ' + mongoPath);
     //UNCOMMENT TO DELETE DB
-    /*modelRides.remove(() => {
+    /*odelRides.remove(() => {
      console.log('removed db');
-     });*/
-    /*
+     });
+    *//*
      modelUsers.remove(()=>{
      console.log("removed users");
      })*/
@@ -204,17 +205,19 @@ app.post('/register', (req, res) => {
                         return res.send(JSON.stringify({error: err}));
                     }
                     console.log(user);
+                    res.redirect("/");
+                    /*
                     return res.send(JSON.stringify({
                         status: true,
                         user: newUser
-                    }))
+                    }))*/
                 });
             }
         }
     });
 });
 app.post('/login',
-    passport.authenticate('local', {successRedirect: '/', failureRedirect: '/login'})
+    passport.authenticate('local', {successRedirect: '/', failureRedirect: '/test'})
 );
 
 app.get("/", (req, res) => {
@@ -245,11 +248,6 @@ app.get('/logout', (req, res) => {
      });*/
     req.logout();
     res.redirect("/");
-});
-
-app.post("/newRide", passport.authenticate('local', {session: true}), (req, res, next) => {
-    console.log("this is first");
-    next();
 });
 
 app.post("/newRide", (req, res) => {
@@ -368,6 +366,25 @@ app.post("/joinRide", (req, res) => {
     });
 });
 
+function checkUser(req, res, next) {
+    console.log("HELPPERONIES");
+    if (req.user) {
+        console.log(req.user);
+        next();
+    } else {
+        res.redirect("/");
+    }
+};
+
+app.get("/profile", checkUser, (req, res) => {
+    res.sendFile("profile/profile.html", {root: "public"});
+});
+
+app.get("/planride", checkUser, (req, res) => {
+    res.sendFile("planride/planride.html", {root: "public"});
+});
+
+
 app.get("/allUsers", (req, res) => {
     modelUsers.find({}, (err, result) => {
         if (!err) {
@@ -378,17 +395,6 @@ app.get("/allUsers", (req, res) => {
     })
 })
 
-app.get("/singleUser/:email", (req, res) => {
-    modelUsers.find({'email': new RegExp(req.params.email, 'i')}, (err, result) => {
-        if (!err) {
-            return res.send(result);
-        } else {
-
-            return res.send({"error": err});
-        }
-    });
-});
-
 app.get("/googlePolyline", (req, res) => {
     //getGooglePolyline(req.body.start,req.body.end,(aaaa)=>{
     getGooglePolyline("Helsinki", "Turku", (aaaa) => {
@@ -396,6 +402,23 @@ app.get("/googlePolyline", (req, res) => {
         return res.send(JSON.stringify({"url": aaaa}));
     });
 });
+
+app.get("/userRides/:userId", (req, res) => {
+    console.log("userriders called");
+    console.log(req.params.userId);
+    modelRides.find({driverId: req.params.userId}, (err, result) => {
+        if (!err) {
+            console.log("found");
+            console.log(result);
+            res.send(result);
+        }else {
+            console.log("err");
+            console.log(err);
+            res.send(err);
+        }
+    });
+})
+;
 
 const getGooglePolyline = (start, end, callback, locArr) => {
     let polylineUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=";

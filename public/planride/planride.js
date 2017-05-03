@@ -196,22 +196,25 @@ const setDepArr = (address) => {
  * constructs an object from all fields
  * @returns {{}}
  */
-const constructObjectFromFields = () => {
-    const newRide = {};
-    newRide.departureDate = config.valueOfField("planride-departureDate");
-    newRide.departureTime = config.valueOfField("planride-departureTime");
-    newRide.arrivalTime = config.valueOfField("planride-arrivalTime");
-    newRide.departureLocation = config.valueOfField("planride-start");
-    newRide.arrivalLocation = config.valueOfField("planride-end");
-    newRide.passengerNumber = config.valueOfField("planride-passengers");
-    newRide.luggageAllowed = config.valueOfField("planride-luggage");
-    newRide.cartype = config.valueOfField("planride-cartype");
-    newRide.payment = config.valueOfField("planride-payment");
-    newRide.username = config.valueOfField("planride-username");
-    newRide.password = config.valueOfField("planride-password");
-    newRide.maximumDistance = config.valueOfField("planride-maxdistance");
-    newRide.totalDistance = totalDistance;
-    return newRide;
+const constructObjectFromFields = (callback) => {
+    config.getCurrentUser((data)=>{
+        const newRide = {};
+        newRide.departureDate = config.valueOfField("planride-departureDate");
+        newRide.departureTime = config.valueOfField("planride-departureTime");
+        newRide.arrivalTime = config.valueOfField("planride-arrivalTime");
+        newRide.departureLocation = config.valueOfField("planride-start");
+        newRide.arrivalLocation = config.valueOfField("planride-end");
+        newRide.passengerNumber = config.valueOfField("planride-passengers");
+        newRide.luggageAllowed = config.valueOfField("planride-luggage");
+        newRide.cartype = config.valueOfField("planride-cartype");
+        newRide.payment = config.valueOfField("planride-payment");
+        newRide.username = config.valueOfField("planride-username");
+        newRide.password = config.valueOfField("planride-password");
+        newRide.maximumDistance = config.valueOfField("planride-maxdistance");
+        newRide.totalDistance = totalDistance;
+        newRide.driverId = data.user._id;
+        callback(newRide);
+    })
 };
 /*
  const checkUserExists = () => {
@@ -259,15 +262,17 @@ $("#plan-ride-tab").click(() => {
 $("#planride-submit").click((event) => {
     //check email, create new user if needed
     //checkUserExists();
-    config.genericPostMethod("/newRide", constructObjectFromFields(), (res) => {
-        console.log(res);
-        if (res.error) {
-            if (res.errorcode == 401) {
-                window.alert("Wrong username or password");
+    constructObjectFromFields((obj)=>{
+        config.genericPostMethod("/newRide", obj, (res) => {
+            console.log(res);
+            if (res.error) {
+                if (res.errorcode == 401) {
+                    window.alert("Wrong username or password");
+                }
+            } else {
+                console.log("All okay");
             }
-        } else {
-            console.log("All okay");
-        }
+        });
     });
 });
 

@@ -73,13 +73,20 @@ const setupModal = (obj) => {
 };
 
 $("#ridesContainer").on("click", ".button-footer-button", (event) => {
-    const id = $(event.target).attr("data-id");
-    console.log("clicked on view btn" + id);
-    config.genericGetMethod("/singleRide/" + id, (res) => {
-        console.log("setting modal title to " + res.departureLocation);
-        currentRide = res;
-        setupModal(res);
-        $('#myModal').modal('show');
+    config.checkUserLogged((val) => {
+        if (val) {
+            const id = $(event.target).attr("data-id");
+            console.log("clicked on view btn" + id);
+            config.genericGetMethod("/singleRide/" + id, (res) => {
+                console.log("setting modal title to " + res.departureLocation);
+                currentRide = res;
+                setupModal(res);
+                $('#myModal').modal('show');
+            });
+        }
+        else {
+            window.alert("You need to log in first");
+        }
     });
 });
 
@@ -90,7 +97,8 @@ $("#modal-join").click((event) => {
         if (data.status) {
             checkJoinFieldsValidity(() => {
                 config.genericPostMethod("/joinRide", {
-                    "rideId": currentRide._id,
+                    rideId: currentRide._id,
+                    address:config.valueOfField("join-address"),
                     user: JSON.stringify(data.user)
                 }, (res) => {
                     if (res.error) {
@@ -114,12 +122,18 @@ $("#modal-join").click((event) => {
 
 
 $("#join-address").on("blur", (event) => {
-    console.log("BLURR" + event.target.id + config.valueOfField(event.target.id));
+    console.log("BLURR");
+    console.log(currentRide);
     if (config.valueOfField(event.target.id) != undefined && config.valueOfField(event.target.id) != "") {
         calcRoute(currentRide.departureLocation, currentRide.arrivalLocation, [config.valueOfField("join-address")], (dist) => {
             console.log(dist + " " + currentRide.maximumDistance + " " + currentRide.totalDistance);
-            const jee = (dist - currentRide.totalDistance) / 2;
-            console.log(jee);
+            const jee = (dist - currentRide.totalDistance) / 2 ;
+            console.log(jee + "EXTRA DISRTANCE" + currentRide.maximumDistance);
+            if(currentRide.maximumDistance > jee){
+                console.log("Not too far");
+            }else {
+                console.log("TOO FAR MAN TOO FAR");
+            }
         });
     }
 });
@@ -152,7 +166,6 @@ const calcRoute = (start, end, waypts, callback) => {
         optimizeWaypoints: true,
         travelMode: google.maps.DirectionsTravelMode.DRIVING
     };
-    console.log(request);
     directionsService.route(request, (response, status) => {
         if (status == google.maps.DirectionsStatus.OK) {
             var route = response.routes[0];

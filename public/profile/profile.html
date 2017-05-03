@@ -6,33 +6,8 @@
 </head>
 <body>
 
-<!-- Modal Join -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
-                </button>
-                <h4 class="modal-title" id="myModalLabel">Turku - Turku</h4>
-            </div>
-            <div class="modal-body">
-                Starting Address:
-                <input name="address" id="join-address" type="text" placeholder="Starting Address">
-                <br><br>
-                Number of passengers:
-                <input type="number" min="1" max="8" value="1" id="join-passengers">
-                <br>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="button" id="modal-join" class="btn btn-primary">Join</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Login -->
-<div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<!-- Modal Passengers -->
+<div class="modal fade" id="profile-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -40,24 +15,18 @@
                 </button>
                 <h4 class="modal-title" id="myModalLabel2">Log In to Catch A Ride</h4>
             </div>
-            <div class="modal-body container" >
-                <div class="row">
-                    <div class="col-xs-5" id="login-modal-body">
+            <div class="modal-body">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Address</th>
+                        <th>Email</th>
+                    </tr>
+                    </thead>
+                    <tbody id="profile-modal-body"></tbody>
 
-                    </div>
-                    <div class="col-xs-5">
-                        Register
-                        <form method="post" action="/register">
-                            Username:
-                            <input type="text" name="username" placeholder="Username">
-                            <br>
-                            Password:
-                            <input type="password" name="password" placeholder="*****">
-                            <br>
-                            <input type="submit" value="Register" class="btn btn-primary">
-                        </form>
-                    </div>
-                </div>
+                </table>
+
             </div>
             <div class="modal-footer">
 
@@ -83,7 +52,7 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav" id="navbar-links">
-                <li class="active"><a href="/">Browse <span class="sr-only">(current)</span></a></li>
+                <li><a href="/">Browse <span class="sr-only">(current)</span></a></li>
             </ul>
             <div class="nav navbar-form navbar-right" id="navbar-login-container">
 
@@ -91,14 +60,20 @@
         </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->
 </nav>
-<div class="container" id="ridesContainer"></div>
+<div class="container">
+    <div class="row" style="height:40em">
+        <div id="profile-container"></div>
+    </div>
+</div>
 
+
+</body>
 <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
 
-<script src="config.js"></script>
-<script src="main.js"></script>
+<script src="/config.js"></script>
+<script src="profile.js"></script>
 
-<link rel="stylesheet" href="main.css">
+<link rel="stylesheet" href="/main.css">
 
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
@@ -113,9 +88,7 @@
         integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
 
-<!-- Google maps -->
+<!-- Google maps --><!--
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASkaNSW9yX8HELM3sFITjPTGf914iFSro&callback=initMap"
-        async defer></script>
-
-</body>
+        async defer></script>-->
 </html>

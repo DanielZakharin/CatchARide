@@ -18,11 +18,14 @@ config.genericGetMethod = (url, callbackMethod) => {
         } else {
             console.log("response is not ok");
             throw new Error('Network response was not ok.');
+            throw new Error(response);
         }
     }).then((response) => {
+        console.log(callbackMethod);
         callbackMethod(response);
     }).catch(function (error) {
-        console.log('Problem in generic :( ' + error.message);
+        console.log('Problem in generic GET :( ' + error + " @ " + url);
+        console.log(error);
     });
 };
 
@@ -45,7 +48,7 @@ config.genericPostMethod = (url, reqBody, callbackMethod) => {
     }).then((response) => {
         callbackMethod(response);
     }).catch(function (error) {
-        console.log('Problem in generic :( ' + error.message);
+        console.log('Problem in generic POST :( ' + error.message + " @ " + url);
     });
 };
 
@@ -57,11 +60,31 @@ config.valueOfField = (id) => {
     return document.getElementById(id).value;
 };
 
+config.checkUserLogged = (callback) => {
+    $.getJSON("/user_data", (data) => {
+        console.log("DATA");
+        console.log(data);
+        if (data.status) {
+            callback(true);
+        } else {
+            callback(false);
+        }
+    })
+};
+
+config.getCurrentUser = (callback) => {
+    $.getJSON("/user_data", (data) => {
+        console.log("DATA");
+        console.log(data);
+        callback(data);
+    })
+};
+
 $("#navbar-login").click((event) => {
 
 });
 
-$("#navbar-login-container").on("click","#navbar-login",(event)=>{
+$("#navbar-login-container").on("click", "#navbar-login", (event) => {
     console.log("FROM CONFIG");
     $('#login-modal').modal('show');
     $.getJSON("/user_data", (data) => {
@@ -87,11 +110,21 @@ const setupNavBar = () => {
             document.getElementById("navbar-login-container").innerHTML = `
             <a id="login-modal-logout" href="/logout" class="btn btn-default">Log Out</a>
             `;
+            document.getElementById("navbar-links").innerHTML += `
+            <li id="navbar-profile"><a href="/profile">Profile</a></li>
+            <li id="navbar-planride"><a href="/planride">Plan a new Ride</a></li>
+`
+            console.log(window.location.pathname);
+            if(window.location.pathname == "/planride/"){
+                $("#navbar-planride").addClass("active");
+            }else if(window.location.pathname == "/profile/"){
+                $("#navbar-profile").addClass("active");
+            }
         } else {
             document.getElementById("navbar-login-container").innerHTML = `<button class="btn btn-primary" id="navbar-login">Log In</button>
             `;
         }
-    })
+    });
 };
 
 setupNavBar();
