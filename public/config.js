@@ -13,6 +13,7 @@ config.genericGetMethod = (url, callbackMethod) => {
     });
     fetch(myRequest).then((response) => {
         if (response.ok) {
+            console.log(response);
             return response.json();
         } else {
             console.log("response is not ok");

@@ -106,26 +106,32 @@ $("#ridesContainer").on("click", ".button-footer-button", (event) => {
 });
 
 $("#modal-join").click((event) => {
-    checkJoinFieldsValidity(() => {
-        config.genericPostMethod("/joinRide", {
-            "rideId": currentRide._id,
-            username: config.valueOfField("join-username"),
-            password: config.valueOfField("join-password")
-        }, (res) => {
-            if (res.error) {
-                if (res.errorcode == 401) {
-                    window.alert("Wrong username or password");
-                }
-            } else {
-                console.log(res);
-                if (res.status) {
-                    $('#myModal').modal('hide');
-                } else {
-                    window.alert(res.message);
-                }
-            }
-        });
+    $.getJSON("/user_data", function (data) {
+        if (data.status) {
+            console.log(data.user);
+            checkJoinFieldsValidity(() => {
+                config.genericPostMethod("/joinRide", {
+                    "rideId": currentRide._id
+                }, (res) => {
+                    if (res.error) {
+                        if (res.errorcode == 401) {
+                            window.alert("Wrong username or password");
+                        }
+                    } else {
+                        console.log(res);
+                        if (res.status) {
+                            $('#myModal').modal('hide');
+                        } else {
+                            window.alert(res.message);
+                        }
+                    }
+                });
+            });
+        }else {
+            window.alert("Please log in");
+        }
     });
+
 
 });
 
@@ -133,9 +139,9 @@ $("#modal-join").click((event) => {
 $("#join-address").on("blur", (event) => {
     console.log("BLURR" + event.target.id + config.valueOfField(event.target.id));
     if (config.valueOfField(event.target.id) != undefined && config.valueOfField(event.target.id) != "") {
-        calcRoute(currentRide.departureLocation,currentRide.arrivalLocation,[config.valueOfField("join-address")],(dist) => {
+        calcRoute(currentRide.departureLocation, currentRide.arrivalLocation, [config.valueOfField("join-address")], (dist) => {
             console.log(dist + " " + currentRide.maximumDistance + " " + currentRide.totalDistance);
-            const jee = (dist - currentRide.totalDistance)/2;
+            const jee = (dist - currentRide.totalDistance) / 2;
             console.log(jee);
         });
     }
@@ -144,22 +150,23 @@ $("#join-address").on("blur", (event) => {
 $("#join-address").keyup(function (event) {
     console.log("keyup");
     if (event.keyCode == 13) {
-        $("#"+event.target.id).blur();
+        $("#" + event.target.id).blur();
     }
 });
 
-const checkMaxDistanceValidity = (start,end,waypoint, maxdistance) => {
+const checkMaxDistanceValidity = (start, end, waypoint, maxdistance) => {
 
 };
 /*EXPERIMENTAL*/
- const calcRoute = (start,end,waypts,callback) => {
-     let wayArray = [];
-     for (const pt of waypts){
-         wayArray.push({
-             location: pt,
-             stopover: true
-         });
-     };
+const calcRoute = (start, end, waypts, callback) => {
+    let wayArray = [];
+    for (const pt of waypts) {
+        wayArray.push({
+            location: pt,
+            stopover: true
+        });
+    }
+    ;
 
     var request = {
         origin: start,
@@ -169,19 +176,19 @@ const checkMaxDistanceValidity = (start,end,waypoint, maxdistance) => {
         travelMode: google.maps.DirectionsTravelMode.DRIVING
     };
     console.log(request);
-    directionsService.route(request, (response, status)=> {
+    directionsService.route(request, (response, status) => {
         if (status == google.maps.DirectionsStatus.OK) {
             var route = response.routes[0];
             var summaryPanel = document.getElementById("directions_panel");
             // For each route, display summary information.
-            computeTotalDistance(response,callback);
+            computeTotalDistance(response, callback);
         } else {
             alert("directions response " + status);
         }
     });
 }
 
-function computeTotalDistance(result,callback) {
+function computeTotalDistance(result, callback) {
     var totalDist = 0;
     var totalTime = 0;
     var myroute = result.routes[0];
@@ -190,34 +197,34 @@ function computeTotalDistance(result,callback) {
         totalTime += myroute.legs[i].duration.value;
     }
     callback(totalDist);
- }
+}
 
 /*END EXPERIMENTAL*/
 
 const checkJoinFieldsValidity = (callback) => {
-    if(config.valueOfField("join-address")) {
+    if (config.valueOfField("join-address")) {
         geocoder.geocode({'address': config.valueOfField("join-address")}, function (results, status) {
             if (status == 'OK') {
                 console.log("GOOGLE GEOCODE SUCCESFULL FOR ADDRESS");
                 console.log(results);
-                if(checkAddressLocationValidity(results)){
+                if (checkAddressLocationValidity(results)) {
                     callback();
-                }else{
+                } else {
                     window.alert("Not in finland");
                 }
             } else {
                 window.alert('Geocode was not successful for the following reason: ' + status);
             }
         });
-    }else{
+    } else {
         window.alert("Please set an address");
     }
 };
 
 const checkAddressLocationValidity = (array) => {
-    for(const obj of array) {
-        for(const component of obj.address_components){
-            if(component.short_name == "FI"){
+    for (const obj of array) {
+        for (const component of obj.address_components) {
+            if (component.short_name == "FI") {
                 return true;
             }
         }
@@ -227,7 +234,7 @@ const checkAddressLocationValidity = (array) => {
 
 $('#myModal').modal({show: false});
 
-function initMap(){
+function initMap() {
     console.log("google maps init ");
     geocoder = new google.maps.Geocoder;
     directionsService = new google.maps.DirectionsService;

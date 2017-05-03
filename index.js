@@ -6,6 +6,7 @@
 const express = require("express");
 const session = require("express-session");
 const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
 const dotenv = require('dotenv').config();
 const mongoose = require('mongoose');
 const bodyParser = require("body-parser");
@@ -17,11 +18,7 @@ const cookieParser = require("cookie-parser");
 
 /*EXPRESS*/
 const app = express();
-app.use(session({
-    secret: "Secret1",
-    resave: true,
-    saveUninitialized: false
-}))
+
 /*END EXPRESS*/
 
 /*COOKIE PARSER*/
@@ -29,11 +26,22 @@ app.use(cookieParser("Cookie1"));
 /*END COOKIEPARSER*/
 
 /*PASSPORT*/
-app.use(passport.initialize());
-app.use(passport.session({
-    secret: "Secret1"
-}));
-const LocalStrategy = require("passport-local").Strategy;
+//put your username and password in .env
+/*passport.use(new LocalStrategy(
+    (username, password, done) => {
+        modelUsers.findOne({userName:username},(res,err)=>{
+            if(!err){
+                if (password != res.password) {
+                    done(null, false, {message: 'Incorrect credentials.'});
+                    return;
+                }return done(null, res);
+            }
+        })
+
+
+    }
+));*/
+
 passport.use(new LocalStrategy(
     (username, password, done) => {
         modelUsers.findOne({"userName": username}, (err, user) => {
@@ -59,15 +67,26 @@ passport.use(new LocalStrategy(
         });
     }));
 
-passport.serializeUser(function (user, done) {
-    done(null, user.id);
+//add the user in session
+passport.serializeUser((user, done) => {
+    console.log(user);
+    done(null, user);
 });
 
-passport.deserializeUser(function (id, done) {
-    User.getUserById(id, function (err, user) {
-        done(err, user);
-    });
+passport.deserializeUser((user, done) => {
+    console.log(user);
+    done(null, user);
 });
+
+
+app.use(session({
+    secret: "Secret1",
+    resave: true,
+    saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 /*END PASSPORT*/
 
 /*CONNECT_FLASH*/
@@ -126,7 +145,7 @@ const rideSchema = new Schema({
     },
     'payment': {type: Number, default: 0},
     'maximumDistance': {type: Number, default: 0},
-    'totalDistance': {type:Number, default:0},
+    'totalDistance': {type: Number, default: 0},
     'thumbnail': {type: String, default: "https://i.ytimg.com/vi/cNycdfFEgBc/maxresdefault.jpg"},
     'driverId': Schema.ObjectId,
     'passangersAccepted': {type: Array, default: []},
@@ -193,20 +212,20 @@ app.post('/register', (req, res) => {
             }
         }
     });
+});
+app.post('/login',
+    passport.authenticate('local', {successRedirect: '/', failureRedirect: '/login'})
+);
 
-
+app.get("/", (req, res) => {
+    console.log("/////////");
+    console.log(req.user);
 });
 
-app.post('/login', passport.authenticate('local', {session: true}), (req, res) => {
-    req.logIn(req.user, function (err) {
-        if (err) {
-            console.log("ERROR WITH LOGIN");
-        } else {
-            console.log("ITS GOOD?");
-            return res.send({success: true, message: 'AI AI AI', user: req.user});
-        }
-    });
-    //res.send({userName: req.user.userName, email: req.user.email});
+app.get('/test', (req, res) => {
+    if (req.user !== undefined)
+        return res.send(`TEST ${req.user.username}!`);
+    res.send('TEST!');
 });
 
 app.get('/logout', (req, res) => {
@@ -254,13 +273,31 @@ app.post("/newRide", (req, res) => {
 });
 
 app.get("/allRides", (req, res) => {
+    console.log("SESSIONS");
+    console.log(req.isAuthenticated());
+    console.log(req.session);
+    console.log(req.user);
     modelRides.find({}, (err, ress) => {
         if (!err) {
+            console.log("THIS IS FROM ALLRIDES");
+            console.log(req.user);
             return res.send(ress);
         } else {
             throw err;
         }
     });
+});
+
+app.get('/user_data',  (req, res) => {
+    if (req.user === undefined) {
+        // The user is not logged in
+        res.json({status: false});
+    } else {
+        res.json({
+            status: true,
+            user: req.user
+        });
+    }
 });
 
 app.get("/singleRide/:id", (req, res) => {
@@ -276,8 +313,9 @@ app.get("/singleRide/:id", (req, res) => {
     });
 });
 
-app.post("/joinRide", passport.authenticate('local', {session: true}), (req, res, next) => {
+app.post("/joinRide", (req, res, next) => {
     console.log("JOINRIDE 1");
+    console.log(req.user);
     next();
 });
 
