@@ -6,88 +6,105 @@
 </head>
 <body>
 
-<div id="exTab2" class="container">
-    <ul class="nav nav-tabs">
-        <li>
-            <a href="/">Browse</a>
-        </li>
-        <li class="active"><a href="/planride">Plan a Ride</a>
-        </li>
-        <li><a href="/login">Login/Register</a>
-        </li>
-    </ul>
+<!-- Modal Login -->
+<div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel2">Log In to Catch A Ride</h4>
+            </div>
+            <div class="modal-body" id="login-modal-body">
 
-    <div class="tab-content ">
-        <div class="tab-pane" id="1">
-            <div class="container" id="ridesContainer">
+            </div>
+            <div class="modal-footer">
 
             </div>
         </div>
-        <div class="tab-pane active" id="2">
-            <div class="container">
-                <div class="row" style="height:40em">
-                    <div class="col-xs-6 googlemap col-md-6" style="height:100%">
-                        <div id="googleMapContainer" style="height:100%"></div>
-                    </div>
-                    <div class="col-xs-6">
-                        <form>
-                            Departure Date:
-                            <input name="departureDate" type="date" value="Departure Date" id="planride-departureDate"
-                                   required>*
-                            <br>
-                            Depart by:
-                            <input name="departureTime" type="time" value="Departure Time" id="planride-departureTime">
-                            <br>
-                            Arrive by:
-                            <input name="arrivalTime" type="time" value="Arrive By" id="planride-arrivalTime">
-                            <br>
-                            Departure location (Write address or click on map):
-                            <input class="deparr" name="departureLocation" type="text" value="Helsinki" id="planride-start"
-                                   placeholder="start" required>*
-                            <br>
-                            Destination (Write address or click on map):
-                            <input class="deparr" name="arrivalLocation" type="text" value="Turku" id="planride-end" placeholder="end"
-                                   required>*
-                            <br>
-                            Passangers:
-                            <input name="passengerNumber" type="number" min="1" max="8" value="1"
-                                   id="planride-passengers" required>
-                            <br>Maxiumum distance from route:
-                            <input name="passengerNumber" type="number" min="0" value="1"
-                                   id="planride-maxdistance" required>
-                            <br>
-                            Allow luggage:
-                            <input name="luggageAllowed" checked="false" type="checkbox" id="planride-luggage">
-                            <br>
-                            Car Type:
-                            <select name="cartype" id="planride-cartype" required>
-                                <option value="Sedan">Sedan</option>
-                                <option value="Estate">Estate</option>
-                                <option value="Family Car">Family Car</option>
-                                <option value="Compact">Compact</option>
-                                <option value="Van">Van</option>
-                            </select>
-                            <br>
-                            Payment per passenger:
-                            <input name="payment" type="number" id="planride-payment" value="0" min="0" max="500"
-                                   required>
-                            <br><br>
-                            Username
-                            <input name="username" type="text" id="planride-username" required>
-                            Password
-                            <input name="username" type="password" id="planride-password" required>
-                            <br><br>
-                            <button type="button" id="planride-submit" class="btn" value="SUBMIT">SUBMIT</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+    </div>
+</div>
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">CaR</a>
         </div>
-        <div class="tab-pane" id="3">
-            <form method="post" action="/newUser">
-                <input name="userName" type="text" placeholder="Username">
-                <input name="email" placeholder="email">
-                <button type="submit" class="btn">Log In</button>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li ><a href="/">Browse <span class="sr-only">(current)</span></a></li>
+                <li class="active"><a href="/planride">Plan a new Ride</a></li>
+
+            </ul>
+            <div class="nav navbar-form navbar-right" id="navbar-login-container">
+
+            </div>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<div class="container">
+    <div class="row" style="height:40em">
+        <div class="col-xs-6 googlemap col-md-6" style="height:100%">
+            <div id="googleMapContainer" style="height:100%"></div>
+        </div>
+        <div class="col-xs-6">
+            <form>
+                Departure Date:
+                <input name="departureDate" type="date" value="Departure Date" id="planride-departureDate"
+                       required>*
+                <br>
+                Depart by:
+                <input name="departureTime" type="time" value="Departure Time" id="planride-departureTime">
+                <br>
+                Arrive by:
+                <input name="arrivalTime" type="time" value="Arrive By" id="planride-arrivalTime">
+                <br>
+                Departure location (Write address or click on map):
+                <input class="deparr" name="departureLocation" type="text" value="Helsinki" id="planride-start"
+                       placeholder="start" required>*
+                <br>
+                Destination (Write address or click on map):
+                <input class="deparr" name="arrivalLocation" type="text" value="Turku" id="planride-end" placeholder="end"
+                       required>*
+                <br>
+                Passangers:
+                <input name="passengerNumber" type="number" min="1" max="8" value="1"
+                       id="planride-passengers" required>
+                <br>Maxiumum distance from route:
+                <input name="passengerNumber" type="number" min="0" value="1"
+                       id="planride-maxdistance" required>
+                <br>
+                Allow luggage:
+                <input name="luggageAllowed" checked="false" type="checkbox" id="planride-luggage">
+                <br>
+                Car Type:
+                <select name="cartype" id="planride-cartype" required>
+                    <option value="Sedan">Sedan</option>
+                    <option value="Estate">Estate</option>
+                    <option value="Family Car">Family Car</option>
+                    <option value="Compact">Compact</option>
+                    <option value="Van">Van</option>
+                </select>
+                <br>
+                Payment per passenger:
+                <input name="payment" type="number" id="planride-payment" value="0" min="0" max="500"
+                       required>
+                <br><br>
+                Username
+                <input name="username" type="text" id="planride-username" required>
+                Password
+                <input name="username" type="password" id="planride-password" required>
+                <br><br>
+                <button type="button" id="planride-submit" class="btn" value="SUBMIT">SUBMIT</button>
             </form>
         </div>
     </div>

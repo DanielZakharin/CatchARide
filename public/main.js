@@ -72,28 +72,6 @@ const setupModal = (obj) => {
     config.setvalueOfField("myModalLabel", obj.departureLocation + " - " + obj.arrivalLocation);
 };
 
-const checkUserExists = () => {
-    const email = config.valueOfField("modal-email");
-    config.genericGetMethod("/singleUser/:" + email, (res) => {
-        if (!res.hasOwnProperty("error")) {
-            console.log("found single user ");
-            console.log(res);
-            if (res.length > 0) {
-                return true;
-            } else {
-                config.genericPostMethod("/newUser", {"userName": "guest" + Date.now(), "email": email}, (res) => {
-                    console.log(res);
-                });
-                window.alert("A new usera was created for email " + email);
-                return true;
-            }
-        } else {
-            window.alert("ERROR WITH USER FETCH");
-            return false;
-        }
-    })
-};
-
 $("#ridesContainer").on("click", ".button-footer-button", (event) => {
     const id = $(event.target).attr("data-id");
     console.log("clicked on view btn" + id);
@@ -106,17 +84,16 @@ $("#ridesContainer").on("click", ".button-footer-button", (event) => {
 });
 
 $("#modal-join").click((event) => {
-    $.getJSON("/user_data", function (data) {
+    $.getJSON("/user_data", (data) => {
+        console.log("DATA");
+        console.log(data);
         if (data.status) {
-            console.log(data.user);
             checkJoinFieldsValidity(() => {
                 config.genericPostMethod("/joinRide", {
-                    "rideId": currentRide._id
+                    "rideId": currentRide._id,
+                    user: JSON.stringify(data.user)
                 }, (res) => {
                     if (res.error) {
-                        if (res.errorcode == 401) {
-                            window.alert("Wrong username or password");
-                        }
                     } else {
                         console.log(res);
                         if (res.status) {
@@ -127,7 +104,7 @@ $("#modal-join").click((event) => {
                     }
                 });
             });
-        }else {
+        } else {
             window.alert("Please log in");
         }
     });

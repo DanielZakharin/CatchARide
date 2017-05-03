@@ -28,19 +28,19 @@ app.use(cookieParser("Cookie1"));
 /*PASSPORT*/
 //put your username and password in .env
 /*passport.use(new LocalStrategy(
-    (username, password, done) => {
-        modelUsers.findOne({userName:username},(res,err)=>{
-            if(!err){
-                if (password != res.password) {
-                    done(null, false, {message: 'Incorrect credentials.'});
-                    return;
-                }return done(null, res);
-            }
-        })
+ (username, password, done) => {
+ modelUsers.findOne({userName:username},(res,err)=>{
+ if(!err){
+ if (password != res.password) {
+ done(null, false, {message: 'Incorrect credentials.'});
+ return;
+ }return done(null, res);
+ }
+ })
 
 
-    }
-));*/
+ }
+ ));*/
 
 passport.use(new LocalStrategy(
     (username, password, done) => {
@@ -224,13 +224,27 @@ app.get("/", (req, res) => {
 
 app.get('/test', (req, res) => {
     if (req.user !== undefined)
-        return res.send(`TEST ${req.user.username}!`);
-    res.send('TEST!');
+        return res.send(`User is: ${req.user.userName}!`);
+    res.send('No user logged in!');
 });
 
 app.get('/logout', (req, res) => {
+    console.log("Loggin out");
+    console.log(req.session);
+    //req.logout();
+    /*req.session.destroy((err) => {
+     if (err) {
+     console.log("error with destroy " + err)
+     }
+     console.log("Logged out");
+     res.redirect('/');
+     });
+     req.session.destroy(function (err) {
+     console.log("DESTOYRMENT");
+     res.redirect('/');
+     });*/
     req.logout();
-    res.redirect('/users/login');
+    res.redirect("/");
 });
 
 app.post("/newRide", passport.authenticate('local', {session: true}), (req, res, next) => {
@@ -288,10 +302,10 @@ app.get("/allRides", (req, res) => {
     });
 });
 
-app.get('/user_data',  (req, res) => {
+app.get('/user_data', (req, res) => {
     if (req.user === undefined) {
         // The user is not logged in
-        res.json({status: false});
+        res.send({status: false});
     } else {
         res.json({
             status: true,
@@ -322,49 +336,36 @@ app.post("/joinRide", (req, res, next) => {
 app.post("/joinRide", (req, res) => {
     console.log("JOINRIDE 2");
     let join = req.body;
-    let user;
-    async.series([(callback) => {
-        modelUsers.findOne({username: req.username}, null, (err, res) => {
-            if (!err) {
-                user = res;
-                console.log("USER IS NOW" + user);
-                callback();
-            }
-        });
-    }, (callback) => {
-        console.log(join);
-        modelRides.findById(join.rideId, (err, result) => {
-            if (!err) {
-                console.log("found ride with id" + join.rideId);
-                /*
-                 modelRides.find({"passangersPending.id":user._id},(err,res)=>{
-                 console.log("FIIIIIIIND " + user._id);
-                 console.log(res);
-                 });*/
-                if (!checkArrayForUserId(result.passangersPending, user._id)) {
-                    result.passangersPending.push({
-                        userID: user._id,
-                        address: req.body.address,
-                        email: req.body.email
-                    });
-                    console.log(result.passangersPending);
-                    result.save((err) => {
-                        if (!err) {
-                            res.send({status: true});
-                        } else {
-                            res.send({status: false, error: err});
-                        }
-                    });
-                } else {
-                    console.log("User already on the list");
-                    res.send({status: false, message: "You have already signed up for this ride"})
-                }
+    console.log(join);
+    let user = JSON.parse(req.body.user);
+    console.log("user in joinride");
+    console.log(user);
+    modelRides.findById(join.rideId, (err, result) => {
+        if (!err) {
+            console.log("found ride with id" + join.rideId);
+            if (!checkArrayForUserId(result.passangersPending, user._id)) {
+                result.passangersPending.push({
+                    userID: user._id,
+                    address: req.body.address,
+                    email: user.email
+                });
+                console.log(result.passangersPending);
+                result.save((err) => {
+                    if (!err) {
+                        res.send({status: true});
+                    } else {
+                        res.send({status: false, error: err});
+                    }
+                });
             } else {
-                console.log("Error with search");
-                res.send({status: false, "error": err});
+                console.log("User already on the list");
+                res.send({status: false, message: "You have already signed up for this ride"})
             }
-        });
-    }])
+        } else {
+            console.log("Error with search");
+            res.send({status: false, "error": err});
+        }
+    });
 });
 
 app.get("/allUsers", (req, res) => {
@@ -433,8 +434,8 @@ const genericGetMethod = (url, callbackMethod) => {
 
 const checkArrayForUserId = (array, id) => {
     for (const elem of array) {
-        console.log("comaparing " + elem.userID + "  " + id.toString());
-        if (elem.userID == id.toString()) {
+        console.log("comaparing " + elem.userID + "  " + id);
+        if (elem.userID == id) {
             console.log("returning true");
             return true;
         }
