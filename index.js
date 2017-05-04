@@ -379,6 +379,19 @@ app.put("/updateRide",(req,res)=>{
     });
 });
 
+app.delete("/deletRide",(req,res)=>{
+    const id = req.body.id;
+    console.log(id);
+    modelRides.findOneAndRemove({_id:id},(err,upd)=>{
+        if(!err){
+            console.log(upd);
+            res.send({status:true,update:upd});
+        }else {
+            res.send({status:false,error:err});
+        }
+    });
+});
+
 function checkUser(req, res, next) {
     console.log("HELPPERONIES");
     if (req.user) {

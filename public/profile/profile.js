@@ -51,15 +51,19 @@ const makeRow = (obj) => {
         row +=
             `
         <button data-id="` + obj._id + `" class="btn profile-view-passengers">View Passengers</button>
-        </div>
-        </div>`
-    }else {
+        `
+    } else {
         row +=
             `
         <button data-id="` + obj._id + `" class="btn profile-view-passengers disabled" disabled>View Passengers</button>
-        </div>
-        </div>`
+        `
     }
+    row += `
+<button data-id="` + obj._id + `" class="btn profile-delete-ride btn-danger" href="#sure" data-toggle="collapse">DELET</button>
+<div class="collapse" id="sure">Are you sure?<br><button class="btn btn-success" data-toggle="collapse" href="#sure">NO</button><button data-id="` + obj._id + `" class="profile-delet btn btn-danger">YES</button></div>
+</div>
+        </div>`
+
     return row;
 };
 
@@ -139,6 +143,21 @@ $("#profile-accept").click((event) => {
         }
     });
 });
+
+$("body").on("click",".profile-delet",(event)=>{
+    const id = $(event.target).attr("data-id");
+    console.log(id);
+    config.genericDELETMethod("/deletRide",{id:id},(res)=>{
+        if(res.status){
+            console.log(res);
+            window.location.replace("/allRides");
+        }else {
+            console.log(res);
+        }
+    })
+});
+
+
 
 
 

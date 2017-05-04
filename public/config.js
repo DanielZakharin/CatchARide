@@ -75,6 +75,29 @@ config.genericPutMethod = (url, reqBody, callbackMethod) => {
     });
 };
 
+config.genericDELETMethod = (url, reqBody, callbackMethod) => {
+    const myRequest = new Request(url, {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(reqBody)
+
+    });
+    fetch(myRequest).then((response) => {
+        if (response.ok) {
+            console.log(response);
+            return response.json();
+        } else {
+            console.log("response is not ok, sending ");
+            console.log(response);
+            return ({error: true, errorcode: response.status});
+        }
+    }).then((response) => {
+        callbackMethod(response);
+    }).catch(function (error) {
+        console.log('Problem in generic DELET :( ' + error.message + " @ " + url);
+    });
+};
+
 config.setvalueOfField = (id, val) => {
     document.getElementById(id).innerHTML = val;
 };
