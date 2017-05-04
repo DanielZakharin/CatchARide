@@ -2,6 +2,7 @@
  * Created by Daniel on 03/05/2017.
  */
 
+"use strict";
 let currentRide;
 let pendingList;
 
@@ -59,8 +60,8 @@ const makeRow = (obj) => {
         `
     }
     row += `
-<button data-id="` + obj._id + `" class="btn profile-delete-ride btn-danger" href="#sure" data-toggle="collapse">DELET</button>
-<div class="collapse" id="sure">Are you sure?<br><button class="btn btn-success" data-toggle="collapse" href="#sure">NO</button><button data-id="` + obj._id + `" class="profile-delet btn btn-danger">YES</button></div>
+<button data-id="` + obj._id + `" class="btn profile-delete-ride btn-danger" href="#sure` +  obj._id +  `" data-toggle="collapse">DELET</button>
+<div class="collapse" id="sure`  + obj._id + `">Are you sure?<br><button class="btn btn-success" data-toggle="collapse" href="#sure` +  obj._id +  `">NO</button><button data-id="` + obj._id + `" class="profile-delet btn btn-danger">YES</button></div>
 </div>
         </div>`
 
