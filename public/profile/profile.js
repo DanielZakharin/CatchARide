@@ -2,6 +2,9 @@
  * Created by Daniel on 03/05/2017.
  */
 
+let currentRide;
+let pendingList;
+
 const populateOwnRides = () => {
     config.getCurrentUser((data) => {
         if (data.status) {
@@ -11,6 +14,7 @@ const populateOwnRides = () => {
                  //document.getElementById("profile-container").innerHTML += obj.passangersPending;
                  }*/
                 console.log(res);
+                document.getElementById("profile-container").innerHTML = "";
                 for (let i = 0; i < res.length; i++) {
                     console.log("THIS IS DICKS");
                     document.getElementById("profile-container").innerHTML += makeRow(res[i]);
@@ -21,7 +25,7 @@ const populateOwnRides = () => {
 };
 
 const makeRow = (obj) => {
-    return `<div class="container-fluid trip-container" >
+    let row = `<div class="container-fluid trip-container" >
         <div class="row">
         <div class="col-md-3 col-sm-6 col-xs-12">
         <img class="thumbnail map-thumbnail" src="` + obj.thumbnail + `"/>
@@ -40,34 +44,102 @@ const makeRow = (obj) => {
             <p class="col-md-10">Accepted: ` + obj.passangersAccepted.length + `</p>
         </div>
         </div>
-
-
         </div>
         <div class="row text-center" id="profile-button-footer">
+`;
+    if (obj.passangersPending.length > 0) {
+        row +=
+            `
         <button data-id="` + obj._id + `" class="btn profile-view-passengers">View Passengers</button>
         </div>
         </div>`
+    }else {
+        row +=
+            `
+        <button data-id="` + obj._id + `" class="btn profile-view-passengers disabled" disabled>View Passengers</button>
+        </div>
+        </div>`
+    }
+    return row;
 };
 
 const makeRowPassenger = (obj) => {
     return `
-    <tr>
-    <th>` + obj.address + `</th>
-    <th>` + obj.email + `</th>
+    <tr class="profile-passenger-pending" >
+    <th data-id="` + obj.userID + `">` + obj.address + `</th>
+    <th data-id="` + obj.userID + `">` + obj.email + `</th>
+    <th class="profile-selected-checkbox" data-id="` + obj.userID + `"><input type="checkbox" data-id="` + obj.userID + `"></th>
 </tr>
     `
 };
 
 populateOwnRides();
 
+const findInPendingForId = (id) => {
+    for (const user of pendingList) {
+        if (user.userID == id) {
+            return user;
+        }
+    }
+}
 $("#profile-container").on("click", ".profile-view-passengers", (event) => {
     const id = $(event.target).attr("data-id");
     console.log(id);
     config.genericGetMethod("/singleRide/" + id, (res) => {
         console.log(res);
+        currentRide = res;
+        pendingList = res.passangersPending;
+        document.getElementById("profile-modal-body").innerHTML = "";
         for (const obj of res.passangersPending) {
+            console.log(obj);
             document.getElementById("profile-modal-body").innerHTML += makeRowPassenger(obj);
         }
         $('#profile-modal').modal('show');
     });
 });
+
+$("#profile-modal-body").on("click", ".profile-passenger-pending", (event) => {
+    const id = $(event.target).attr("data-id");
+});
+
+$("#profile-modal-body").on("change", ".profile-selected-checkbox", (event) => {
+    const id = $(event.target).attr("data-id");
+
+    if ($(this).is(':checked')) {
+        // Checkbox is checked.
+        console.log("check me " + id);
+    } else {
+        // Checkbox is not checked.
+        console.log("check me out" + id);
+    }
+
+});
+
+$("#profile-accept").click((event) => {
+    let tempArr = [];
+    $(":checkbox").each(function (index, element) {
+        let id = $(element).attr('data-id'); // grab value of original
+        let ischecked = $(element).is(":checked"); //check if checked
+        console.log(id + " " + ischecked);
+        if (ischecked) {
+            const tempUser = findInPendingForId(id);
+            if (tempUser) {
+                tempArr.push(tempUser);
+            }
+        }
+    });
+    currentRide.passangersAccepted = currentRide.passangersAccepted.concat(tempArr);
+    currentRide.passangersPending = currentRide.passangersPending.filter(function (item) {
+        return tempArr.indexOf(item) === -1;
+    });
+    config.genericPutMethod("/updateRide", currentRide, (res) => {
+        console.log(res);
+        if (res.status) {
+            window.location.replace("/profile");
+        }
+    });
+});
+
+
+
+

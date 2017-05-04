@@ -366,6 +366,19 @@ app.post("/joinRide", (req, res) => {
     });
 });
 
+app.put("/updateRide",(req,res)=>{
+    const newObj = req.body;
+    console.log(newObj._id);
+    modelRides.findOneAndUpdate({_id:newObj._id},newObj,{new:true},(err,upd)=>{
+        if(!err){
+            console.log(upd);
+            res.send({status:true,update:upd});
+        }else {
+            res.send({status:false,error:err});
+        }
+    });
+});
+
 function checkUser(req, res, next) {
     console.log("HELPPERONIES");
     if (req.user) {
