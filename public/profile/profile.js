@@ -161,7 +161,7 @@ $("body").on("click",".profile-delet",(event)=>{
     config.genericDELETMethod("/deletRide",{id:id},(res)=>{
         if(res.status){
             console.log(res);
-            window.location.replace("/allRides");
+            window.location.replace("/profile");
         }else {
             console.log(res);
         }
