@@ -148,7 +148,7 @@ const rideSchema = new Schema({
     'maximumDistance': {type: Number, default: 0},
     'totalDistance': {type: Number, default: 0},
     'thumbnail': {type: String, default: "https://i.ytimg.com/vi/cNycdfFEgBc/maxresdefault.jpg"},
-    'driverId': {type: String,required: true},
+    'driverId': {type: String, required: true},
     'passangersAccepted': {type: Array, default: []},
     'passangersPending': {type: Array, default: []},
 
@@ -171,7 +171,8 @@ mongoose.connect(mongoPath).then(() => {
     /*modelRides.remove(() => {
      console.log('removed db');
      });
-    *//*
+     */
+    /*
      modelUsers.remove(()=>{
      console.log("removed users");
      })*/
@@ -207,10 +208,10 @@ app.post('/register', (req, res) => {
                     console.log(user);
                     res.redirect("/");
                     /*
-                    return res.send(JSON.stringify({
-                        status: true,
-                        user: newUser
-                    }))*/
+                     return res.send(JSON.stringify({
+                     status: true,
+                     user: newUser
+                     }))*/
                 });
             }
         }
@@ -366,28 +367,28 @@ app.post("/joinRide", (req, res) => {
     });
 });
 
-app.put("/updateRide",(req,res)=>{
+app.put("/updateRide", (req, res) => {
     const newObj = req.body;
     console.log(newObj._id);
-    modelRides.findOneAndUpdate({_id:newObj._id},newObj,{new:true},(err,upd)=>{
-        if(!err){
+    modelRides.findOneAndUpdate({_id: newObj._id}, newObj, {new: true}, (err, upd) => {
+        if (!err) {
             console.log(upd);
-            res.send({status:true,update:upd});
-        }else {
-            res.send({status:false,error:err});
+            res.send({status: true, update: upd});
+        } else {
+            res.send({status: false, error: err});
         }
     });
 });
 
-app.delete("/deletRide",(req,res)=>{
+app.delete("/deletRide", (req, res) => {
     const id = req.body.id;
     console.log(id);
-    modelRides.findOneAndRemove({_id:id},(err,upd)=>{
-        if(!err){
+    modelRides.findOneAndRemove({_id: id}, (err, upd) => {
+        if (!err) {
             console.log(upd);
-            res.send({status:true,update:upd});
-        }else {
-            res.send({status:false,error:err});
+            res.send({status: true, update: upd});
+        } else {
+            res.send({status: false, error: err});
         }
     });
 });
@@ -437,7 +438,7 @@ app.get("/userRides/:userId", (req, res) => {
             console.log("found");
             console.log(result);
             res.send(result);
-        }else {
+        } else {
             console.log("err");
             console.log(err);
             res.send(err);
@@ -447,17 +448,22 @@ app.get("/userRides/:userId", (req, res) => {
 ;
 
 const getGooglePolyline = (start, end, callback, locArr) => {
+    console.log("PERSELINE");
+    console.log(start + end);
+    start = encodeURI(start);
+    end = encodeURI(end);
     let polylineUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=";
     polylineUrl += start;
     polylineUrl = polylineUrl + "&destination=" + end;
     if (locArr && locArr.length > 0) {
         polylineUrl += "&waypoints=";
-        for (const wp of locArr) {
+        for (let wp of locArr) {
+            wp = encodeURI(wp);
             polylineUrl += wp + "|"
         }
     }
     polylineUrl += "&mode=driving&key=" + process.env.apiKey;
-    //console.log("accessing polylineUrl " + polylineUrl);
+    console.log("accessing polylineUrl " + polylineUrl);
     genericGetMethod(polylineUrl, (response) => {
         callback("https://maps.googleapis.com/maps/api/staticmap?&size=600x400&path=enc:" + response.routes[0].overview_polyline.points + "&key=" + process.env.apiKey);//.overview_polyline.points);
     });
@@ -468,16 +474,17 @@ const getGooglePolyline = (start, end, callback, locArr) => {
 const genericGetMethod = (url, callbackMethod) => {
     fetch(url).then((response) => {
         if (response.ok) {
-            //console.log(response);
+            console.log(response);
             return response.json();
         } else {
-            //console.log("response is not ok");
+            console.log("response is not ok");
+            console.log(response);
             throw new Error('Network response was not ok.');
         }
     }).then((response) => {
         callbackMethod(response);
     }).catch(function (error) {
-        //console.log('Problem :( ' + error.message);
+        console.log('Problem :( ' + error.message);
     });
 };
 
