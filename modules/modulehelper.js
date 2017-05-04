@@ -4,7 +4,7 @@
 
 class helper {
     constructor() {
-
+        this.fetch = require('node-fetch');
     }
 
     getGooglePolyline(start, end, callback, locArr) {
@@ -24,7 +24,7 @@ class helper {
         }
         polylineUrl += "&mode=driving&key=" + process.env.apiKey;
         console.log("accessing polylineUrl " + polylineUrl);
-        genericGetMethod(polylineUrl, (response) => {
+        this.genericGetMethod(polylineUrl, (response) => {
             callback("https://maps.googleapis.com/maps/api/staticmap?&size=600x400&path=enc:" + response.routes[0].overview_polyline.points + "&key=" + process.env.apiKey);//.overview_polyline.points);
         });
         //https://maps.googleapis.com/maps/api/staticmap?size=600x400&path=enc
@@ -32,7 +32,7 @@ class helper {
     }
 
     genericGetMethod(url, callbackMethod) {
-        fetch(url).then((response) => {
+        this.fetch(url).then((response) => {
             if (response.ok) {
                 console.log(response);
                 return response.json();
