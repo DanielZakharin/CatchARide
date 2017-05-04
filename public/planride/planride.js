@@ -264,11 +264,13 @@ $("#planride-submit").click((event) => {
                 config.genericPostMethod("/newRide", obj, (res) => {
                     console.log(res);
                     if (res.error) {
-                        if (res.errorcode == 401) {
-                            config.showModalAlertWithMessage("Wrong username or password");
-                        }
                     } else {
-                        console.log("All okay");
+                        if(res.status){
+                            console.log("All okay");
+                            window.location.replace("/profile");
+                        }else {
+                            console.log(res);
+                        }
                     }
                 });
             });

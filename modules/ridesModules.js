@@ -46,14 +46,16 @@ app.route("/newRide").post((req, res) => {
             }
         },
         (callback) => {
-            DB.modelRides.create(newObj, (err, res) => {
-                if (!err) {
+            DB.modelRides.create(newObj, (err, result) => {
+                if (err) {
                     //console.log("succesfully created a thing");
+                    res.send({status:false,error:err});
                 } else {
                     //console.log("failed to create " + err);
+                    res.send({status:true,new:result});
                 }
             });
-            res.send("Response :^) " + JSON.stringify(req.body));
+
         }
     ]);
 });
