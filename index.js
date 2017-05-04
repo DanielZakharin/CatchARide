@@ -15,6 +15,7 @@ const moment = require('moment');
 const fetch = require('node-fetch');
 const async = require("async");
 const cookieParser = require("cookie-parser");
+const nodemailer = require('nodemailer');
 /*END CONSTANTS*/
 
 /*EXPRESS*/
@@ -181,7 +182,42 @@ mongoose.connect(mongoPath).then(() => {
 });
 /*END MONGOOSE CONNECT*/
 
+/*NODEMAILER*/
+const sendMail = (address,title,body,callback) => {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'catcharidemailer@gmail.com',
+            pass: 'scooterman'
+        }
+    });
+
+// setup email data with unicode symbols
+    let mailOptions = {
+        from: '"🚗Catch A Ride🚗" <catcharidemailer@gmail.com>', // sender address
+        to: address, // list of receivers
+        subject: title, // Subject line
+        text: body, // plain text body
+    };
+    // send mail with defined transport object
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.log(error);
+        }
+        console.log('Message %s sent: %s', info.messageId, info.response);
+    });
+};
+/*END NODEMAILER*/
+
 app.use(express.static("public"));
+
+app.post("/sendMail",(req,res)=>{
+    const mail = req.body;
+    if(mail){
+        sendMail(mail.address,mail.title,mail.body)
+    }
+    res.end();
+});
 
 app.post('/register', (req, res) => {
     const email = req.body.email;

@@ -140,6 +140,16 @@ $("#profile-accept").click((event) => {
     config.genericPutMethod("/updateRide", currentRide, (res) => {
         console.log(res);
         if (res.status) {
+            for(const user of tempArr){
+                config.genericPostMethod("/sendMail",{
+                    address: user.email,
+                    title: "You have been accepted for a Ride™",
+                    body: "You are eligible to join the Ride™ leaving " + currentRide.departureLocation
+                    + " going to " + currentRide.arrivalLocation + " on " + currentRide.departureDate,
+                },(res)=>{
+
+                });
+            }
             window.location.replace("/profile");
         }
     });
