@@ -28,25 +28,10 @@ app.use(cookieParser("Cookie1"));
 /*END COOKIEPARSER*/
 
 /*PASSPORT*/
-//put your username and password in .env
-/*passport.use(new LocalStrategy(
- (username, password, done) => {
- modelUsers.findOne({userName:username},(res,err)=>{
- if(!err){
- if (password != res.password) {
- done(null, false, {message: 'Incorrect credentials.'});
- return;
- }return done(null, res);
- }
- })
-
-
- }
- ));*/
 
 passport.use(new LocalStrategy(
     (username, password, done) => {
-        modelUsers.findOne({"userName": username}, (err, user) => {
+        DB.modelUsers.findOne({"userName": username}, (err, user) => {
             if (err) throw err;
             if (!user) {
                 return done(null, false, {message: 'Unknown User'});
@@ -99,14 +84,7 @@ app.use(flash());
 /*END DOTENV*/
 
 /*MONGOOSE*/
-mongoose.Promise = global.Promise; //ES6 Promise
-const ObjectID = require('mongodb').ObjectID;
-const mongoUsr = process.env.DB_USERNAME;
-const mongoPwd = process.env.DB_PASSWORD;
-const mongoUrl = process.env.DB_URL;
-const mongoPath = 'mongodb://' + mongoUsr + ':' + mongoPwd + '@' + mongoUrl;
-//console.log('this is the mongopath ' + mongoPath);
-const Schema = mongoose.Schema;
+
 /*END MONGOOSE*/
 
 /*BODY PARSER*/
@@ -115,72 +93,17 @@ app.use(bodyParser.json());
 /*END BODYPARSER*/
 
 /*SCHEMAS*/
-const rideSchema = new Schema({
-    'departureDate': {type: Date, default: Date.now()},
-    'departureTime': {type: Date, default: Date.now()},
-    'departureLocation': {type: String, default: "Not set"},
-    'departureCoordinates': {
-        type: [Number, Number],
-        default: [1, 1]
-    },
-    'departureTitle': {type: String, default: "No StartPoint Set"},
-    'arrivalTime': {type: Date},
-    'arrivalLocation': {type: String, default: "Not set"},
-    'arrivalCoordinates': {
-        type: [Number, Number],
-        default: [0, 0]
-    },
-    'arrivalTitle': {type: String, default: "No EndPoint Set"},
-    'cartype': {
-        type: String,
-        enum: ['Sedan', 'Estate', 'Family Car', 'Compact', 'Van'],
-        default: 'Not Specified'
-    },
-    'passengerNumber': {
-        type: Number,
-        min: 0,
-        max: 8,
-        default: 0
-    },
-    'luggageAllowed': {
-        type: Boolean, default: false
-    },
-    'payment': {type: Number, default: 0},
-    'maximumDistance': {type: Number, default: 0},
-    'totalDistance': {type: Number, default: 0},
-    'thumbnail': {type: String, default: "https://i.ytimg.com/vi/cNycdfFEgBc/maxresdefault.jpg"},
-    'driverId': {type: String, required: true},
-    'passangersAccepted': {type: Array, default: []},
-    'passangersPending': {type: Array, default: []},
 
 
-});
-const userSchema = new Schema({
-    'userName': {type: String, defualt: "Nönnönnöö"},
-    'password': {type: String, required: true},
-    'email': {type: String, default: "esim@posti.jou"}
-});
-
-const modelRides = mongoose.model('rides', rideSchema);
-const modelUsers = mongoose.model('users', userSchema);
 /*END SCHEMAS*/
 
 /*MOGNOOSE CONNECT*/
-mongoose.connect(mongoPath).then(() => {
-    //console.log('Connected successfully to: ' + mongoPath);
-    //UNCOMMENT TO DELETE DB
-    /*modelRides.remove(() => {
-     console.log('removed db');
-     });
-     */
-    /*
-     modelUsers.remove(()=>{
-     console.log("removed users");
-     })*/
-}, err => {
-    //console.log('Connection to db failed to : ' + mongoPath + err);
-});
+
 /*END MONGOOSE CONNECT*/
+
+const DB = require("./modules/dbmodule.js");
+DB.connect();
+console.log(DB.modelRides);
 
 /*NODEMAILER*/
 const sendMail = (address,title,body,callback) => {
@@ -224,7 +147,7 @@ app.post('/register', (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
 
-    modelUsers.findOne({"userName": username}, (err, user) => {
+    DB.modelUsers.findOne({"userName": username}, (err, user) => {
         if (!err) {
             console.log(user + "user");
             if (user) {
@@ -236,7 +159,7 @@ app.post('/register', (req, res) => {
                     "password": password
                 };
 
-                modelUsers.create(newUser, (err, user) => {
+                DB.modelUsers.create(newUser, (err, user) => {
                     if (err) {
                         console.log("ERROR WITH CREATING USER" + err);
                         return res.send(JSON.stringify({error: err}));
@@ -309,7 +232,7 @@ app.post("/newRide", (req, res) => {
             }
         },
         (callback) => {
-            modelRides.create(newObj, (err, res) => {
+            DB.modelRides.create(newObj, (err, res) => {
                 if (!err) {
                     //console.log("succesfully created a thing");
                 } else {
@@ -326,7 +249,7 @@ app.get("/allRides", (req, res) => {
     console.log(req.isAuthenticated());
     console.log(req.session);
     console.log(req.user);
-    modelRides.find({}, (err, ress) => {
+    DB.modelRides.find({}, (err, ress) => {
         if (!err) {
             console.log("THIS IS FROM ALLRIDES");
             console.log(req.user);
@@ -351,7 +274,7 @@ app.get('/user_data', (req, res) => {
 
 app.get("/singleRide/:id", (req, res) => {
     console.log("singleride triggered " + req.params.id);
-    modelRides.findById(req.params.id, (err, result) => {
+    DB.modelRides.findById(req.params.id, (err, result) => {
         if (!err) {
             console.log("found ride with id" + result);
             return res.send(result);
@@ -375,7 +298,7 @@ app.post("/joinRide", (req, res) => {
     let user = JSON.parse(req.body.user);
     console.log("user in joinride");
     console.log(user);
-    modelRides.findById(join.rideId, (err, result) => {
+    DB.modelRides.findById(join.rideId, (err, result) => {
         if (!err) {
             console.log("found ride with id" + join.rideId);
             if (!checkArrayForUserId(result.passangersPending, user._id)) {
@@ -406,7 +329,7 @@ app.post("/joinRide", (req, res) => {
 app.put("/updateRide", (req, res) => {
     const newObj = req.body;
     console.log(newObj._id);
-    modelRides.findOneAndUpdate({_id: newObj._id}, newObj, {new: true}, (err, upd) => {
+    DB.modelRides.findOneAndUpdate({_id: newObj._id}, newObj, {new: true}, (err, upd) => {
         if (!err) {
             console.log(upd);
             res.send({status: true, update: upd});
@@ -419,7 +342,7 @@ app.put("/updateRide", (req, res) => {
 app.delete("/deletRide", (req, res) => {
     const id = req.body.id;
     console.log(id);
-    modelRides.findOneAndRemove({_id: id}, (err, upd) => {
+    DB.modelRides.findOneAndRemove({_id: id}, (err, upd) => {
         if (!err) {
             console.log(upd);
             res.send({status: true, update: upd});
@@ -449,7 +372,7 @@ app.get("/planride", checkUser, (req, res) => {
 
 
 app.get("/allUsers", (req, res) => {
-    modelUsers.find({}, (err, result) => {
+    DB.modelUsers.find({}, (err, result) => {
         if (!err) {
             return res.send(result);
         } else {
@@ -469,7 +392,7 @@ app.get("/googlePolyline", (req, res) => {
 app.get("/userRides/:userId", (req, res) => {
     console.log("userriders called");
     console.log(req.params.userId);
-    modelRides.find({driverId: req.params.userId}, (err, result) => {
+    DB.modelRides.find({driverId: req.params.userId}, (err, result) => {
         if (!err) {
             console.log("found");
             console.log(result);
