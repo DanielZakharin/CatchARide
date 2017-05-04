@@ -16,3 +16,7 @@ input:invalid {
 input:valid {
     border: 2px solid green;
 }
+
+.navbar{
+    margin-bottom: 0px;
+}

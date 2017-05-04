@@ -82,7 +82,7 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
             directionsDisplay.setDirections(response);
             //calculateTotalDistance(document.getElementById('start').value, document.getElementById('end').value, waypts);
         } else {
-            window.alert("Address not found");
+            config.showAlertWithMessage("Address not found");
         }
     });
 }
@@ -197,7 +197,7 @@ const setDepArr = (address) => {
  * @returns {{}}
  */
 const constructObjectFromFields = (callback) => {
-    config.getCurrentUser((data)=>{
+    config.getCurrentUser((data) => {
         const newRide = {};
         newRide.departureDate = config.valueOfField("planride-departureDate");
         newRide.departureTime = config.valueOfField("planride-departureTime");
@@ -208,8 +208,6 @@ const constructObjectFromFields = (callback) => {
         newRide.luggageAllowed = config.valueOfField("planride-luggage");
         newRide.cartype = config.valueOfField("planride-cartype");
         newRide.payment = config.valueOfField("planride-payment");
-        newRide.username = config.valueOfField("planride-username");
-        newRide.password = config.valueOfField("planride-password");
         newRide.maximumDistance = config.valueOfField("planride-maxdistance");
         newRide.totalDistance = totalDistance;
         newRide.driverId = data.user._id;
@@ -243,9 +241,9 @@ const constructObjectFromFields = (callback) => {
 const updateDistance = () => {
     const i = config.valueOfField("planride-start");
     const j = config.valueOfField("planride-end");
-    if(i != undefined && i != "" && j != undefined && j != ""){
+    if (i != undefined && i != "" && j != undefined && j != "") {
         console.log(i + "  " + j);
-        calculateDistance(i.toString(),j.toString(),(time,distnace)=>{
+        calculateDistance(i.toString(), j.toString(), (time, distnace) => {
             totalDistance = distnace;
             console.log("distance now at" + totalDistance);
         })
@@ -260,19 +258,21 @@ $("#plan-ride-tab").click(() => {
 });
 
 $("#planride-submit").click((event) => {
-    //check email, create new user if needed
-    //checkUserExists();
-    constructObjectFromFields((obj)=>{
-        config.genericPostMethod("/newRide", obj, (res) => {
-            console.log(res);
-            if (res.error) {
-                if (res.errorcode == 401) {
-                    window.alert("Wrong username or password");
-                }
-            } else {
-                console.log("All okay");
-            }
-        });
+    config.checkUserLogged((is) => {
+        if (is) {
+            constructObjectFromFields((obj) => {
+                config.genericPostMethod("/newRide", obj, (res) => {
+                    console.log(res);
+                    if (res.error) {
+                        if (res.errorcode == 401) {
+                            config.showModalAlertWithMessage("Wrong username or password");
+                        }
+                    } else {
+                        console.log("All okay");
+                    }
+                });
+            });
+        }
     });
 });
 
@@ -290,7 +290,7 @@ $(".deparr").on("blur", (event) => {
 $(".deparr").keyup(function (event) {
     console.log("keyup");
     if (event.keyCode == 13) {
-        $("#"+event.target.id).blur();
+        $("#" + event.target.id).blur();
     }
 });
 /*END EVENT LISTENERS*/

@@ -85,7 +85,7 @@ $("#ridesContainer").on("click", ".button-footer-button", (event) => {
             });
         }
         else {
-            window.alert("You need to log in first");
+            config.showAlertWithMessage("You need to log in first");
         }
     });
 });
@@ -98,7 +98,7 @@ $("#modal-join").click((event) => {
             checkJoinFieldsValidity(() => {
                 config.genericPostMethod("/joinRide", {
                     rideId: currentRide._id,
-                    address:config.valueOfField("join-address"),
+                    address: config.valueOfField("join-address"),
                     user: JSON.stringify(data.user)
                 }, (res) => {
                     if (res.error) {
@@ -107,35 +107,21 @@ $("#modal-join").click((event) => {
                         if (res.status) {
                             $('#myModal').modal('hide');
                         } else {
-                            window.alert(res.message);
+                            config.showModalAlertWithMessage(res.message);
                         }
                     }
                 });
             });
         } else {
-            window.alert("Please log in");
+            config.showModalAlertWithMessage("Please log in");
         }
     });
-
-
 });
 
 
 $("#join-address").on("blur", (event) => {
     console.log("BLURR");
     console.log(currentRide);
-    if (config.valueOfField(event.target.id) != undefined && config.valueOfField(event.target.id) != "") {
-        calcRoute(currentRide.departureLocation, currentRide.arrivalLocation, [config.valueOfField("join-address")], (dist) => {
-            console.log(dist + " " + currentRide.maximumDistance + " " + currentRide.totalDistance);
-            const jee = (dist - currentRide.totalDistance) / 2 ;
-            console.log(jee + "EXTRA DISRTANCE" + currentRide.maximumDistance);
-            if(currentRide.maximumDistance > jee){
-                console.log("Not too far");
-            }else {
-                console.log("TOO FAR MAN TOO FAR");
-            }
-        });
-    }
 });
 
 $("#join-address").keyup(function (event) {
@@ -198,18 +184,39 @@ const checkJoinFieldsValidity = (callback) => {
                 console.log("GOOGLE GEOCODE SUCCESFULL FOR ADDRESS");
                 console.log(results);
                 if (checkAddressLocationValidity(results)) {
-                    callback();
+                    calcRoute(currentRide.departureLocation, currentRide.arrivalLocation, [config.valueOfField("join-address")], (dist) => {
+                        console.log(dist + " " + currentRide.maximumDistance + " " + currentRide.totalDistance);
+                        const jee = (dist - currentRide.totalDistance) / 2;
+                        console.log(jee + "EXTRA DISRTANCE" + currentRide.maximumDistance);
+                        if (currentRide.maximumDistance > jee) {
+                            console.log("Not too far");
+                            console.log(currentRide.passengerNumber - currentRide.passangersAccepted.length - config.valueOfField("join-passengers"));
+                            if (currentRide.passengerNumber - currentRide.passangersAccepted.length - config.valueOfField("join-passengers")>= 0) {
+                                callback();
+                            }else {
+                                config.showModalAlertWithMessage("Too many passengers");
+                            }
+                        } else {
+                            console.log("TOO FAR MAN TOO FAR");
+                            //document.getElementById("modal-join").disabled = true;
+                            config.showModalAlertWithMessage("The address you have given is too far from the route");
+                            //$("#modal-join").addClass("disabled");
+                        }
+                    });
+
                 } else {
-                    window.alert("Not in finland");
+                    config.showModalAlertWithMessage("Not in finland");
                 }
             } else {
-                window.alert('Geocode was not successful for the following reason: ' + status);
+                config.showModalAlertWithMessage('Geocode was not successful for the following reason: ' + status);
             }
         });
     } else {
-        window.alert("Please set an address");
+        config.showModalAlertWithMessage("Please set an address");
     }
-};
+
+}
+
 
 const checkAddressLocationValidity = (array) => {
     for (const obj of array) {
@@ -221,6 +228,8 @@ const checkAddressLocationValidity = (array) => {
     }
     return false;
 };
+
+
 
 $('#myModal').modal({show: false});
 

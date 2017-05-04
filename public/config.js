@@ -127,6 +127,28 @@ config.getCurrentUser = (callback) => {
     })
 };
 
+config.showAlertWithMessage = (msg) => {
+    $("#alert-collapse").collapse('show');
+    document.getElementById("alert-message").innerHTML = "<strong>" + msg + "</strong>";
+    setTimeout(() => {
+        $("#alert-collapse").collapse('hide');
+    }, 3000);
+};
+
+config.showModalAlertWithMessage = (msg) => {
+    $(".alert-modal-collapse").each((i, obj) => {
+        $(obj).collapse('show');
+    });
+    for (let elem of document.getElementsByClassName("alert-modal-message")) {
+        elem.innerHTML = "<strong>" + msg + "</strong>";
+    }
+    setTimeout(() => {
+        $(".alert-modal-collapse").each((i, obj) => {
+            $(obj).collapse('hide');
+        });
+    }, 3000);
+}
+
 $("#navbar-login").click((event) => {
 
 });
@@ -162,9 +184,9 @@ const setupNavBar = () => {
             <li id="navbar-planride"><a href="/planride">Plan a new Ride</a></li>
 `
             console.log(window.location.pathname);
-            if(window.location.pathname == "/planride/"){
+            if (window.location.pathname == "/planride/") {
                 $("#navbar-planride").addClass("active");
-            }else if(window.location.pathname == "/profile/"){
+            } else if (window.location.pathname == "/profile/") {
                 $("#navbar-profile").addClass("active");
             }
         } else {

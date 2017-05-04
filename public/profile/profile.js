@@ -51,7 +51,7 @@ const makeRow = (obj) => {
     if (obj.passangersPending.length > 0) {
         row +=
             `
-        <button data-id="` + obj._id + `" class="btn profile-view-passengers">View Passengers</button>
+        <button data-id="` + obj._id + `" class="btn profile-view-passengers">View Interested</button>
         `
     } else {
         row +=

@@ -79,7 +79,6 @@ passport.deserializeUser((user, done) => {
     done(null, user);
 });
 
-
 app.use(session({
     secret: "Secret1",
     resave: true,
@@ -169,7 +168,7 @@ const modelUsers = mongoose.model('users', userSchema);
 mongoose.connect(mongoPath).then(() => {
     //console.log('Connected successfully to: ' + mongoPath);
     //UNCOMMENT TO DELETE DB
-    /*odelRides.remove(() => {
+    /*modelRides.remove(() => {
      console.log('removed db');
      });
     *//*

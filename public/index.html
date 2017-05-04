@@ -16,6 +16,11 @@
                 <h4 class="modal-title" id="myModalLabel">Turku - Turku</h4>
             </div>
             <div class="modal-body">
+                <div class="collapse alert-modal-collapse">
+                    <div class="alert alert-danger">
+                        <span class="alert-modal-message"><strong>Danger!</strong> Indicates a dangerous or potentially negative action.</span>
+                    </div>
+                </div>
                 Starting Address:
                 <input name="address" id="join-address" type="text" placeholder="Starting Address">
                 <br><br>
@@ -40,7 +45,12 @@
                 </button>
                 <h4 class="modal-title" id="myModalLabel2">Log In to Catch A Ride</h4>
             </div>
-            <div class="modal-body container" >
+            <div class="modal-body container">
+                <div class="collapse alert-modal-collapse">
+                    <div class="alert alert-danger">
+                        <span class="alert-modal-message"><strong>Danger!</strong> Indicates a dangerous or potentially negative action.</span>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-xs-5" id="login-modal-body">
 
@@ -50,6 +60,9 @@
                         <form method="post" action="/register">
                             Username:
                             <input type="text" name="username" placeholder="Username">
+                            <br>
+                            E-mail:
+                            <input type="email" name="email" placeholder="email">
                             <br>
                             Password:
                             <input type="password" name="password" placeholder="*****">
@@ -65,32 +78,39 @@
         </div>
     </div>
 </div>
-
-<nav class="navbar navbar-default">
-    <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">CaR</a>
-        </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav" id="navbar-links">
-                <li class="active"><a href="/">Browse <span class="sr-only">(current)</span></a></li>
-            </ul>
-            <div class="nav navbar-form navbar-right" id="navbar-login-container">
-
+<div style="width: 100%; z-index: 1000" data-spy="affix" data-offset-top="50">
+    <nav class="navbar navbar-default" style="width: 100%; z-index: 1000">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">CaR</a>
             </div>
-        </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
-</nav>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav" id="navbar-links">
+                    <li class="active"><a href="/">Browse <span class="sr-only">(current)</span></a></li>
+                </ul>
+                <div class="nav navbar-form navbar-right" id="navbar-login-container">
+
+                </div>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+    <div class="collapse " id="alert-collapse">
+        <div class="alert alert-danger">
+            <span id="alert-message"><strong>Danger!</strong> Indicates a dangerous or potentially negative action.</span>
+        </div>
+    </div>
+</div>
+
 <div class="container" id="ridesContainer"></div>
 
 <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
@@ -98,7 +118,6 @@
 <script src="config.js"></script>
 <script src="main.js"></script>
 
-<link rel="stylesheet" href="main.css">
 
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
@@ -116,6 +135,8 @@
 <!-- Google maps -->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASkaNSW9yX8HELM3sFITjPTGf914iFSro&callback=initMap"
         async defer></script>
+
+<link rel="stylesheet" href="main.css">
 
 </body>
 </html>

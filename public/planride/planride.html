@@ -16,7 +16,11 @@
                 <h4 class="modal-title" id="myModalLabel2">Log In to Catch A Ride</h4>
             </div>
             <div class="modal-body" id="login-modal-body">
-
+                <div class="collapse alert-modal-collapse">
+                    <div class="alert alert-danger">
+                        <span class="alert-modal-message"><strong>Danger!</strong> Indicates a dangerous or potentially negative action.</span>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
 
@@ -25,31 +29,38 @@
     </div>
 </div>
 
-<nav class="navbar navbar-default">
-    <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">CaR</a>
-        </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav" id="navbar-links">
-                <li ><a href="/">Browse <span class="sr-only">(current)</span></a></li>
-
-            </ul>
-            <div class="nav navbar-form navbar-right" id="navbar-login-container">
-
+<div style="width: 100%; z-index: 1000" data-spy="affix" data-offset-top="50">
+    <nav class="navbar navbar-default" style="width: 100%; z-index: 1000">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">CaR</a>
             </div>
-        </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
-</nav>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav" id="navbar-links">
+                    <li><a href="/">Browse <span class="sr-only">(current)</span></a></li>
+                </ul>
+                <div class="nav navbar-form navbar-right" id="navbar-login-container">
+
+                </div>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+    <div class="collapse " id="alert-collapse">
+        <div class="alert alert-danger">
+            <span id="alert-message"><strong>Danger!</strong> Indicates a dangerous or potentially negative action.</span>
+        </div>
+    </div>
+</div>
 <div class="container">
     <div class="row" style="height:40em">
         <div class="col-xs-6 googlemap col-md-6" style="height:100%">
@@ -68,11 +79,12 @@
                 <input name="arrivalTime" type="time" value="Arrive By" id="planride-arrivalTime">
                 <br>
                 Departure location (Write address or click on map):
-                <input class="deparr" name="departureLocation" type="text" value="Helsinki" id="planride-start"
+                <input class="deparr" name="departureLocation" type="text"  id="planride-start"
                        placeholder="start" required>*
                 <br>
                 Destination (Write address or click on map):
-                <input class="deparr" name="arrivalLocation" type="text" value="Turku" id="planride-end" placeholder="end"
+                <input class="deparr" name="arrivalLocation" type="text" id="planride-end"
+                       placeholder="end"
                        required>*
                 <br>
                 Passangers:
@@ -97,11 +109,6 @@
                 Payment per passenger:
                 <input name="payment" type="number" id="planride-payment" value="0" min="0" max="500"
                        required>
-                <br><br>
-                Username
-                <input name="username" type="text" id="planride-username" required>
-                Password
-                <input name="username" type="password" id="planride-password" required>
                 <br><br>
                 <button type="button" id="planride-submit" class="btn" value="SUBMIT">SUBMIT</button>
             </form>
